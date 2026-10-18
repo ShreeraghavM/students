@@ -8,6 +8,8 @@ export function generateStaticParams() {
     { id: 'job_4' },
     { id: 'job_5' },
     { id: 'job_6' },
+    { id: 'job_7' },
+    { id: 'job_8' },
   ];
 }
 

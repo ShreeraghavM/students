@@ -6,16 +6,20 @@ import {
   Dispute,
   JobFilters,
   VerificationStatus,
+  Message,
+  Notification,
 } from '@/types';
 
 const STORAGE_KEYS = {
-  USERS: 'gsap_users_v1',
-  JOBS: 'gsap_jobs_v1',
-  APPLICATIONS: 'gsap_applications_v1',
-  REVIEWS: 'gsap_reviews_v1',
-  DISPUTES: 'gsap_disputes_v1',
-  SESSION: 'gsap_session_user_id_v1',
-  INITIALIZED: 'gsap_initialized_v1',
+  USERS: 'gsap_users_v2',
+  JOBS: 'gsap_jobs_v2',
+  APPLICATIONS: 'gsap_applications_v2',
+  REVIEWS: 'gsap_reviews_v2',
+  DISPUTES: 'gsap_disputes_v2',
+  MESSAGES: 'gsap_messages_v2',
+  NOTIFICATIONS: 'gsap_notifications_v2',
+  SESSION: 'gsap_session_user_id_v2',
+  INITIALIZED: 'gsap_initialized_v2',
 };
 
 // SSR-safe storage helpers
@@ -76,6 +80,19 @@ const SEED_USERS: User[] = [
     createdAt: '2024-01-10T10:00:00.000Z',
   },
   {
+    id: 'user_client_raj',
+    name: 'Raj Patel (UK Expat)',
+    email: 'raj.expat@london.co.uk',
+    password: 'client123',
+    role: 'client',
+    dateOfBirth: '1987-08-14',
+    age: 37,
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    bio: 'Software Architect based in London. Seeking trusted, university-verified local students in India to assist my retired mother with hospital visits and digital banking.',
+    location: 'London, UK / Bangalore, IN',
+    createdAt: '2024-01-12T11:00:00.000Z',
+  },
+  {
     id: 'user_client_marcus',
     name: 'Marcus Vance',
     email: 'marcus.client@example.com',
@@ -104,6 +121,9 @@ const SEED_USERS: User[] = [
     skills: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Node.js', 'Python'],
     hourlyRate: 35,
     verificationStatus: 'verified',
+    verificationCertId: 'GSAP-MIT-2024-8901',
+    verifiedAt: '2024-01-20T10:00:00.000Z',
+    walletBalance: 300,
     createdAt: '2024-01-18T14:30:00.000Z',
   },
   {
@@ -122,6 +142,9 @@ const SEED_USERS: User[] = [
     skills: ['Figma', 'UI/UX', 'Graphic Design', 'Brand Identity', 'Illustration', 'Canva'],
     hourlyRate: 28,
     verificationStatus: 'verified',
+    verificationCertId: 'GSAP-RISD-2024-4421',
+    verifiedAt: '2024-01-22T12:00:00.000Z',
+    walletBalance: 504,
     createdAt: '2024-01-20T09:15:00.000Z',
   },
   {
@@ -133,18 +156,75 @@ const SEED_USERS: User[] = [
     dateOfBirth: '2002-12-05',
     age: 22,
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    bio: 'Senior Mathematics & Physics major at Stanford. 3 years experience tutoring college calculus, linear algebra, and data entry.',
-    location: 'Palo Alto, CA',
+    bio: 'Senior Mathematics & Physics major at Stanford. 3 years experience tutoring college calculus, linear algebra, and providing trusted elderly tech & local concierge support.',
+    location: 'Palo Alto, CA / Bangalore',
     university: 'Stanford University',
     degree: 'B.S. Applied Mathematics',
-    skills: ['Calculus', 'Physics', 'Linear Algebra', 'Tutoring', 'Python', 'Data Entry'],
+    skills: ['Calculus', 'Physics', 'Senior Tech Setup', 'Elderly Care', 'Tutoring', 'Data Entry'],
     hourlyRate: 30,
-    verificationStatus: 'pending',
+    verificationStatus: 'verified',
+    verificationCertId: 'GSAP-STANFORD-2024-7712',
+    verifiedAt: '2024-01-25T08:00:00.000Z',
+    walletBalance: 120,
     createdAt: '2024-01-22T16:45:00.000Z',
   },
 ];
 
 const SEED_JOBS: Job[] = [
+  {
+    id: 'job_cb_1',
+    clientId: 'user_client_raj',
+    clientName: 'Raj Patel (UK Expat)',
+    clientEmail: 'raj.expat@london.co.uk',
+    title: 'Elderly Mother Hospital Accompaniment & Doctor Prescription Update',
+    description: 'I live in London, UK, and need a compassionate, trusted university student in Bangalore to accompany my 71-year-old mother for her routine cardiology checkup at Manipal Hospital. You will assist with registration, note the doctor’s dosage instructions, pick up medicines from the clinic pharmacy, and do a quick 5-minute video call with me afterwards. Taxi fares reimbursed.',
+    category: 'Family & Elderly Care',
+    location: 'Bangalore, India (Indiranagar / HAL)',
+    isRemote: false,
+    hourlyRate: 25,
+    estimatedHours: 4,
+    requiredSkills: ['Elderly Care', 'Healthcare Support', 'Local Language (Kannada/Hindi/English)', 'Empathy'],
+    status: 'open',
+    isCrossBorder: true,
+    crossBorderInfo: {
+      senderLocation: 'London, United Kingdom',
+      recipientLocation: 'Indiranagar, Bangalore, India',
+      recipientRelation: 'Aging Mother (71 yrs)',
+      languagePreference: 'Kannada & English',
+      urgency: 'Standard',
+    },
+    escrowStatus: 'unfunded',
+    createdAt: '2024-02-10T09:00:00.000Z',
+    updatedAt: '2024-02-10T09:00:00.000Z',
+  },
+  {
+    id: 'job_cb_2',
+    clientId: 'user_client_raj',
+    clientName: 'Raj Patel (UK Expat)',
+    clientEmail: 'raj.expat@london.co.uk',
+    title: 'Senior Citizen Digital Banking & Smartphone Fraud-Safety Setup',
+    description: 'Looking for an ethical, tech-savvy college student to visit my retired parents at their home for 2 hours to help them set up their pension verification portal, organize secure two-factor authentication, and teach them how to identify WhatsApp financial scams. High trust and university background strictly required.',
+    category: 'Family & Elderly Care',
+    location: 'Bangalore, India (Jayanagar)',
+    isRemote: false,
+    hourlyRate: 28,
+    estimatedHours: 3,
+    requiredSkills: ['Senior Tech Setup', 'Digital Literacy', 'Patience', 'Cybersecurity Awareness'],
+    status: 'hired',
+    hiredStudentId: 'user_student_leo',
+    isCrossBorder: true,
+    crossBorderInfo: {
+      senderLocation: 'London, United Kingdom',
+      recipientLocation: 'Jayanagar, Bangalore, India',
+      recipientRelation: 'Retired Parents (68 & 73 yrs)',
+      languagePreference: 'English & Hindi',
+      urgency: 'Standard',
+    },
+    escrowStatus: 'held',
+    escrowAmount: 84,
+    createdAt: '2024-02-08T11:00:00.000Z',
+    updatedAt: '2024-02-09T14:00:00.000Z',
+  },
   {
     id: 'job_1',
     clientId: 'user_client_sarah',
@@ -159,6 +239,7 @@ const SEED_JOBS: Job[] = [
     estimatedHours: 20,
     requiredSkills: ['React', 'TypeScript', 'Tailwind CSS', 'Next.js'],
     status: 'open',
+    escrowStatus: 'unfunded',
     createdAt: '2024-02-01T10:00:00.000Z',
     updatedAt: '2024-02-01T10:00:00.000Z',
   },
@@ -176,6 +257,7 @@ const SEED_JOBS: Job[] = [
     estimatedHours: 15,
     requiredSkills: ['Figma', 'Graphic Design', 'Brand Identity', 'UI/UX'],
     status: 'open',
+    escrowStatus: 'unfunded',
     createdAt: '2024-02-03T11:30:00.000Z',
     updatedAt: '2024-02-03T11:30:00.000Z',
   },
@@ -193,6 +275,7 @@ const SEED_JOBS: Job[] = [
     estimatedHours: 10,
     requiredSkills: ['Calculus', 'Linear Algebra', 'Tutoring', 'Physics'],
     status: 'open',
+    escrowStatus: 'unfunded',
     createdAt: '2024-02-05T08:00:00.000Z',
     updatedAt: '2024-02-05T08:00:00.000Z',
   },
@@ -211,6 +294,8 @@ const SEED_JOBS: Job[] = [
     requiredSkills: ['Research', 'Data Entry', 'Python'],
     status: 'hired',
     hiredStudentId: 'user_student_alex',
+    escrowStatus: 'held',
+    escrowAmount: 300,
     createdAt: '2024-01-25T14:00:00.000Z',
     updatedAt: '2024-01-28T09:00:00.000Z',
   },
@@ -229,29 +314,28 @@ const SEED_JOBS: Job[] = [
     requiredSkills: ['Figma', 'Illustration', 'Graphic Design'],
     status: 'completed',
     hiredStudentId: 'user_student_maya',
+    escrowStatus: 'released',
+    escrowAmount: 504,
     createdAt: '2024-01-12T09:00:00.000Z',
     updatedAt: '2024-01-22T17:00:00.000Z',
-  },
-  {
-    id: 'job_6',
-    clientId: 'user_client_marcus',
-    clientName: 'Marcus Vance',
-    clientEmail: 'marcus.client@example.com',
-    title: 'Technical Documentation & API Endpoint Verification',
-    description: 'Test and document 30 REST API endpoints, creating clear markdown examples and verifying JSON payloads.',
-    category: 'Web Development',
-    location: 'Seattle, WA',
-    isRemote: true,
-    hourlyRate: 30,
-    estimatedHours: 15,
-    requiredSkills: ['TypeScript', 'Node.js', 'Web Development'],
-    status: 'open',
-    createdAt: '2024-02-07T13:00:00.000Z',
-    updatedAt: '2024-02-07T13:00:00.000Z',
   },
 ];
 
 const SEED_APPLICATIONS: Application[] = [
+  {
+    id: 'app_cb_1',
+    jobId: 'job_cb_2',
+    studentId: 'user_student_leo',
+    studentName: 'Leo Chen',
+    studentEmail: 'leo.tutor@stanford.edu',
+    studentHourlyRate: 30,
+    studentSkills: ['Senior Tech Setup', 'Elderly Care', 'Digital Literacy'],
+    studentVerificationStatus: 'verified',
+    coverLetter: "Hi Raj, I am based in Jayanagar 4th Block! I regularly help my own grandparents with tech setup and online banking safety. I would be honored to guide your parents with patience and care.",
+    proposedRate: 28,
+    status: 'hired',
+    createdAt: '2024-02-08T14:30:00.000Z',
+  },
   {
     id: 'app_1',
     jobId: 'job_1',
@@ -295,20 +379,6 @@ const SEED_APPLICATIONS: Application[] = [
     createdAt: '2024-01-26T08:00:00.000Z',
   },
   {
-    id: 'app_4',
-    jobId: 'job_4',
-    studentId: 'user_student_leo',
-    studentName: 'Leo Chen',
-    studentEmail: 'leo.tutor@stanford.edu',
-    studentHourlyRate: 30,
-    studentSkills: ['Data Entry', 'Research'],
-    studentVerificationStatus: 'pending',
-    coverLetter: 'Happy to research and structure your competitor dataset carefully with accurate financial metrics.',
-    proposedRate: 25,
-    status: 'rejected',
-    createdAt: '2024-01-26T09:30:00.000Z',
-  },
-  {
     id: 'app_5',
     jobId: 'job_5',
     studentId: 'user_student_maya',
@@ -321,6 +391,88 @@ const SEED_APPLICATIONS: Application[] = [
     proposedRate: 28,
     status: 'hired',
     createdAt: '2024-01-13T10:00:00.000Z',
+  },
+];
+
+const SEED_MESSAGES: Message[] = [
+  {
+    id: 'msg_1',
+    jobId: 'job_cb_2',
+    senderId: 'user_client_raj',
+    senderName: 'Raj Patel (UK Expat)',
+    senderRole: 'client',
+    text: "Hi Leo, thanks for taking this up! My father's name is Suresh and my mother is Geetha. They are home after 3 PM. Can you bring a notepad to write down their simplified steps?",
+    createdAt: '2024-02-09T14:05:00.000Z',
+  },
+  {
+    id: 'msg_2',
+    jobId: 'job_cb_2',
+    senderId: 'user_student_leo',
+    senderName: 'Leo Chen',
+    senderRole: 'student',
+    text: "Absolutely Raj! I have prepared step-by-step printed flashcards for phone fraud prevention and pension checking. I will call you as soon as I arrive at their doorstep.",
+    createdAt: '2024-02-09T14:15:00.000Z',
+  },
+  {
+    id: 'msg_3',
+    jobId: 'job_5',
+    senderId: 'user_client_sarah',
+    senderName: 'Sarah Jenkins',
+    senderRole: 'client',
+    text: "Maya, the vector set was accepted by our front-end team. Releasing your escrow payment right now. Thank you so much!",
+    createdAt: '2024-01-22T16:50:00.000Z',
+  },
+  {
+    id: 'msg_4',
+    jobId: 'job_5',
+    senderId: 'user_student_maya',
+    senderName: 'Maya Lin',
+    senderRole: 'student',
+    text: "Thank you Sarah! It was a delight collaborating with your team. Wishing you the best on the relaunch!",
+    createdAt: '2024-01-22T16:55:00.000Z',
+  },
+];
+
+const SEED_NOTIFICATIONS: Notification[] = [
+  {
+    id: 'notif_1',
+    userId: 'user_student_alex',
+    title: 'New High AI Match (95%)',
+    message: 'A new SaaS Dashboard Task in Austin matches 4 of your top skills.',
+    link: '/jobs/job_1',
+    read: false,
+    type: 'application',
+    createdAt: '2024-02-01T10:05:00.000Z',
+  },
+  {
+    id: 'notif_2',
+    userId: 'user_student_leo',
+    title: 'Hired & Escrow Funded ($84.00)',
+    message: 'Raj Patel has hired you for "Senior Citizen Digital Banking & Smartphone Fraud-Safety Setup". Funds are locked in GSAP Escrow.',
+    link: '/jobs/job_cb_2',
+    read: false,
+    type: 'escrow',
+    createdAt: '2024-02-09T14:00:00.000Z',
+  },
+  {
+    id: 'notif_3',
+    userId: 'user_student_maya',
+    title: 'Payment Released ($504.00)',
+    message: 'Escrow payment for "Marketing Landing Page Illustration" has been released to your wallet.',
+    link: '/jobs/job_5',
+    read: true,
+    type: 'completion',
+    createdAt: '2024-01-22T17:00:00.000Z',
+  },
+  {
+    id: 'notif_4',
+    userId: 'user_client_raj',
+    title: 'Application Received',
+    message: 'Leo Chen (Stanford, Verified) applied for your family assistance task.',
+    link: '/jobs/job_cb_2',
+    read: true,
+    type: 'application',
+    createdAt: '2024-02-08T14:35:00.000Z',
   },
 ];
 
@@ -382,11 +534,12 @@ export function initStorage(forceReset = false): void {
     localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(SEED_USERS));
     localStorage.setItem(STORAGE_KEYS.JOBS, JSON.stringify(SEED_JOBS));
     localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(SEED_APPLICATIONS));
+    localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(SEED_MESSAGES));
+    localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(SEED_NOTIFICATIONS));
     localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(SEED_REVIEWS));
     localStorage.setItem(STORAGE_KEYS.DISPUTES, JSON.stringify(SEED_DISPUTES));
     localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
 
-    // Default session to client demo if no session exists
     if (!localStorage.getItem(STORAGE_KEYS.SESSION)) {
       localStorage.setItem(STORAGE_KEYS.SESSION, 'user_client_sarah');
     }
@@ -423,7 +576,6 @@ export function createUser(user: User): User {
     throw new Error('A user with this email address already exists.');
   }
 
-  // Enforce 18+ platform policy
   if (user.age < 18) {
     throw new Error('Platform rule violation: All users must be 18 years of age or older.');
   }
@@ -454,7 +606,6 @@ export function deleteUser(id: string): void {
   const users = getUsers().filter((u) => u.id !== id);
   setItem(STORAGE_KEYS.USERS, users);
 
-  // If current session belongs to deleted user, clear it
   if (getCurrentSessionUserId() === id) {
     clearCurrentSession();
   }
@@ -480,6 +631,10 @@ export function getJobs(filters?: JobFilters): Job[] {
 
   if (filters.remoteOnly) {
     jobs = jobs.filter((j) => j.isRemote);
+  }
+
+  if (filters.crossBorderOnly) {
+    jobs = jobs.filter((j) => j.isCrossBorder);
   }
 
   if (filters.location) {
@@ -543,9 +698,69 @@ export function deleteJob(id: string): void {
   const jobs = getJobs().filter((j) => j.id !== id);
   setItem(STORAGE_KEYS.JOBS, jobs);
 
-  // Clean up associated applications
   const apps = getApplications().filter((a) => a.jobId !== id);
   setItem(STORAGE_KEYS.APPLICATIONS, apps);
+}
+
+// ---------------------------------------------------------------------------
+// Escrow Management
+// ---------------------------------------------------------------------------
+
+export function fundEscrow(jobId: string, amount: number): Job {
+  const job = updateJob(jobId, {
+    escrowStatus: 'held',
+    escrowAmount: amount,
+  });
+
+  if (job.hiredStudentId) {
+    addNotification({
+      id: `notif_${Date.now()}`,
+      userId: job.hiredStudentId,
+      title: 'Escrow Funded',
+      message: `Client deposited $${amount.toFixed(2)} in GSAP Escrow for "${job.title}". You can proceed with confidence.`,
+      link: `/jobs/${job.id}`,
+      read: false,
+      type: 'escrow',
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  return job;
+}
+
+export function releaseEscrow(jobId: string): Job {
+  const job = getJobById(jobId);
+  if (!job) throw new Error('Job not found');
+
+  const amount = job.escrowAmount || job.hourlyRate * job.estimatedHours;
+
+  const updatedJob = updateJob(jobId, {
+    status: 'completed',
+    escrowStatus: 'released',
+  });
+
+  if (job.hiredStudentId) {
+    const student = getUserById(job.hiredStudentId);
+    if (student) {
+      const currentBalance = student.walletBalance || 0;
+      updateUser(student.id, {
+        walletBalance: currentBalance + amount,
+      });
+
+      addNotification({
+        id: `notif_${Date.now()}`,
+        userId: student.id,
+        title: 'Payment Released to Wallet',
+        message: `Client approved completion! $${amount.toFixed(2)} has been released to your GSAP wallet.`,
+        link: `/profile/${student.id}`,
+        read: false,
+        type: 'completion',
+        createdAt: new Date().toISOString(),
+      });
+    }
+  }
+
+  return updatedJob;
 }
 
 // ---------------------------------------------------------------------------
@@ -565,57 +780,51 @@ export function getApplicationsByStudentId(studentId: string): Application[] {
   return getApplications().filter((a) => a.studentId === studentId);
 }
 
-export function getApplicationById(id: string): Application | undefined {
-  return getApplications().find((a) => a.id === id);
-}
-
 export function createApplication(app: Application): Application {
   const apps = getApplications();
-  // Check if student already applied
   const existing = apps.find(
     (a) => a.jobId === app.jobId && a.studentId === app.studentId
   );
   if (existing) {
-    throw new Error('You have already submitted an application for this job.');
+    throw new Error('You have already submitted an application for this task.');
   }
   apps.unshift(app);
   setItem(STORAGE_KEYS.APPLICATIONS, apps);
+
+  // Notify job owner
+  const job = getJobById(app.jobId);
+  if (job) {
+    addNotification({
+      id: `notif_${Date.now()}`,
+      userId: job.clientId,
+      title: 'New Applicant',
+      message: `${app.studentName} applied for "${job.title}" at $${app.proposedRate}/hr.`,
+      link: `/jobs/${job.id}`,
+      read: false,
+      type: 'application',
+      createdAt: new Date().toISOString(),
+    });
+  }
+
   return app;
 }
 
-export function updateApplication(
-  id: string,
-  partial: Partial<Application>
-): Application {
-  const apps = getApplications();
-  const index = apps.findIndex((a) => a.id === id);
-  if (index === -1) {
-    throw new Error(`Application not found with id: ${id}`);
-  }
-  const updated: Application = { ...apps[index], ...partial };
-  apps[index] = updated;
-  setItem(STORAGE_KEYS.APPLICATIONS, apps);
-  return updated;
-}
+export function hireApplicant(
+  jobId: string,
+  applicationId: string,
+  studentId: string,
+  escrowDepositAmount?: number
+): void {
+  const job = getJobById(jobId);
+  const deposit = escrowDepositAmount || (job ? job.hourlyRate * job.estimatedHours : 100);
 
-export function deleteApplication(id: string): void {
-  const apps = getApplications().filter((a) => a.id !== id);
-  setItem(STORAGE_KEYS.APPLICATIONS, apps);
-}
-
-/**
- * Hiring Flow:
- * Client hires one applicant -> job becomes "hired", that application becomes "hired",
- * and other applicants for that job are automatically marked "rejected".
- */
-export function hireApplicant(jobId: string, applicationId: string, studentId: string): void {
-  // Update job
   updateJob(jobId, {
     status: 'hired',
     hiredStudentId: studentId,
+    escrowStatus: 'held',
+    escrowAmount: deposit,
   });
 
-  // Update applications
   const apps = getApplications();
   const updatedApps = apps.map((app) => {
     if (app.jobId === jobId) {
@@ -629,6 +838,84 @@ export function hireApplicant(jobId: string, applicationId: string, studentId: s
   });
 
   setItem(STORAGE_KEYS.APPLICATIONS, updatedApps);
+
+  // Notify hired student
+  addNotification({
+    id: `notif_${Date.now()}`,
+    userId: studentId,
+    title: 'Congratulations! You are Hired',
+    message: `You were hired for "${job?.title || 'task'}" with $${deposit.toFixed(2)} funded in Escrow.`,
+    link: `/jobs/${jobId}`,
+    read: false,
+    type: 'hire',
+    createdAt: new Date().toISOString(),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Direct In-App Chat / Messages Repository
+// ---------------------------------------------------------------------------
+
+export function getMessagesByJobId(jobId: string): Message[] {
+  initStorage();
+  const messages = getItem<Message[]>(STORAGE_KEYS.MESSAGES, SEED_MESSAGES);
+  return messages.filter((m) => m.jobId === jobId);
+}
+
+export function sendMessage(msg: Message): Message {
+  const messages = getItem<Message[]>(STORAGE_KEYS.MESSAGES, SEED_MESSAGES);
+  messages.push(msg);
+  setItem(STORAGE_KEYS.MESSAGES, messages);
+
+  // Notify the other participant
+  const job = getJobById(msg.jobId);
+  if (job) {
+    const recipientId = msg.senderId === job.clientId ? job.hiredStudentId : job.clientId;
+    if (recipientId) {
+      addNotification({
+        id: `notif_${Date.now()}`,
+        userId: recipientId,
+        title: `Message from ${msg.senderName}`,
+        message: msg.text.length > 50 ? `${msg.text.slice(0, 50)}...` : msg.text,
+        link: `/jobs/${job.id}`,
+        read: false,
+        type: 'message',
+        createdAt: new Date().toISOString(),
+      });
+    }
+  }
+
+  return msg;
+}
+
+// ---------------------------------------------------------------------------
+// Notifications Repository
+// ---------------------------------------------------------------------------
+
+export function getNotificationsByUserId(userId: string): Notification[] {
+  initStorage();
+  const notifs = getItem<Notification[]>(STORAGE_KEYS.NOTIFICATIONS, SEED_NOTIFICATIONS);
+  return notifs
+    .filter((n) => n.userId === userId)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export function addNotification(notification: Notification): void {
+  const notifs = getItem<Notification[]>(STORAGE_KEYS.NOTIFICATIONS, SEED_NOTIFICATIONS);
+  notifs.unshift(notification);
+  setItem(STORAGE_KEYS.NOTIFICATIONS, notifs);
+}
+
+export function markNotificationAsRead(id: string): void {
+  const notifs = getItem<Notification[]>(STORAGE_KEYS.NOTIFICATIONS, SEED_NOTIFICATIONS);
+  const updated = notifs.map((n) => (n.id === id ? { ...n, read: true } : n));
+  setItem(STORAGE_KEYS.NOTIFICATIONS, updated);
+}
+
+export function markAllNotificationsAsRead(userId: string): void {
+  const notifs = getItem<Notification[]>(STORAGE_KEYS.NOTIFICATIONS, SEED_NOTIFICATIONS);
+  const updated = notifs.map((n) => (n.userId === userId ? { ...n, read: true } : n));
+  setItem(STORAGE_KEYS.NOTIFICATIONS, updated);
 }
 
 // ---------------------------------------------------------------------------
@@ -648,22 +935,29 @@ export function getReviewsByJobId(jobId: string): Review[] {
   return getReviews().filter((r) => r.jobId === jobId);
 }
 
-export function getReviewForJobAndUser(jobId: string, reviewerId: string): Review | undefined {
-  return getReviews().find((r) => r.jobId === jobId && r.reviewerId === reviewerId);
-}
-
 export function createReview(review: Review): Review {
   const reviews = getReviews();
-  // Check if reviewer already reviewed for this job
   const existing = reviews.find(
     (r) => r.jobId === review.jobId && r.reviewerId === review.reviewerId
   );
   if (existing) {
-    throw new Error('You have already submitted a review for this job.');
+    throw new Error('You have already submitted a review for this task.');
   }
 
   reviews.unshift(review);
   setItem(STORAGE_KEYS.REVIEWS, reviews);
+
+  addNotification({
+    id: `notif_${Date.now()}`,
+    userId: review.revieweeId,
+    title: 'New Star Rating & Review',
+    message: `${review.reviewerName} gave you a ${review.rating}-star review: "${review.comment.slice(0, 40)}..."`,
+    link: `/profile/${review.revieweeId}`,
+    read: false,
+    type: 'review',
+    createdAt: new Date().toISOString(),
+  });
+
   return review;
 }
 
@@ -691,14 +985,22 @@ export function getDisputes(): Dispute[] {
   return getItem<Dispute[]>(STORAGE_KEYS.DISPUTES, SEED_DISPUTES);
 }
 
-export function getDisputeById(id: string): Dispute | undefined {
-  return getDisputes().find((d) => d.id === id);
-}
-
 export function createDispute(dispute: Dispute): Dispute {
   const disputes = getDisputes();
   disputes.unshift(dispute);
   setItem(STORAGE_KEYS.DISPUTES, disputes);
+
+  addNotification({
+    id: `notif_${Date.now()}`,
+    userId: 'user_admin',
+    title: 'New Dispute Escalated',
+    message: `${dispute.raisedByName} raised a dispute on "${dispute.jobTitle}": ${dispute.reason}`,
+    link: '/admin',
+    read: false,
+    type: 'dispute',
+    createdAt: new Date().toISOString(),
+  });
+
   return dispute;
 }
 

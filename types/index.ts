@@ -2,6 +2,8 @@ export type UserRole = 'client' | 'student' | 'admin';
 
 export type VerificationStatus = 'verified' | 'pending' | 'rejected';
 
+export type Currency = 'USD' | 'GBP' | 'EUR' | 'INR';
+
 export interface User {
   id: string;
   name: string;
@@ -17,11 +19,15 @@ export interface User {
   hourlyRate?: number; // for students (e.g. $25/hr)
   university?: string; // for students (e.g. "UC Berkeley")
   degree?: string; // for students (e.g. "B.S. Computer Science")
-  verificationStatus?: VerificationStatus; // Mocked verification status
+  verificationStatus?: VerificationStatus;
+  verificationCertId?: string; // e.g. "GSAP-VERIFIED-2026-8849"
+  verifiedAt?: string;
+  walletBalance?: number; // In-app wallet for students
   createdAt: string;
 }
 
 export type JobCategory =
+  | 'Family & Elderly Care'
   | 'Tutoring'
   | 'Web Development'
   | 'Graphic Design'
@@ -33,6 +39,14 @@ export type JobCategory =
 
 export type JobStatus = 'open' | 'hired' | 'completed' | 'cancelled';
 
+export interface CrossBorderInfo {
+  senderLocation: string; // e.g. "London, UK"
+  recipientLocation: string; // e.g. "Bangalore, India"
+  recipientRelation: string; // e.g. "Aging Mother (72 yrs)"
+  languagePreference: string; // e.g. "Kannada & English"
+  urgency: 'Standard' | 'Urgent' | 'Recurring Weekly';
+}
+
 export interface Job {
   id: string;
   clientId: string;
@@ -43,11 +57,15 @@ export interface Job {
   category: JobCategory;
   location: string;
   isRemote: boolean;
-  hourlyRate: number;
+  hourlyRate: number; // Stored in USD base
   estimatedHours: number;
   requiredSkills: string[];
   status: JobStatus;
   hiredStudentId?: string;
+  isCrossBorder?: boolean;
+  crossBorderInfo?: CrossBorderInfo;
+  escrowStatus?: 'unfunded' | 'held' | 'released';
+  escrowAmount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -101,11 +119,42 @@ export interface Dispute {
   resolvedAt?: string;
 }
 
+export interface Message {
+  id: string;
+  jobId: string;
+  senderId: string;
+  senderName: string;
+  senderRole: UserRole;
+  text: string;
+  createdAt: string;
+}
+
+export type NotificationType =
+  | 'application'
+  | 'hire'
+  | 'escrow'
+  | 'completion'
+  | 'review'
+  | 'dispute'
+  | 'message';
+
+export interface Notification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  link?: string;
+  read: boolean;
+  type: NotificationType;
+  createdAt: string;
+}
+
 export interface JobFilters {
   query?: string;
   category?: string;
   location?: string;
   remoteOnly?: boolean;
+  crossBorderOnly?: boolean;
   minRate?: number;
   maxRate?: number;
   status?: JobStatus;
@@ -127,7 +176,7 @@ export interface MatchScoreResult {
 export interface FaqItem {
   id: string;
   question: string;
-  category: 'Safety & 18+' | 'Hiring' | 'Payments' | 'Disputes' | 'Verification';
+  category: 'Safety & 18+' | 'Hiring' | 'Payments' | 'Disputes' | 'Verification' | 'Cross-Border Care';
   answer: string;
   keywords: string[];
 }

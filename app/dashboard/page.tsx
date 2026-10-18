@@ -27,10 +27,13 @@ import {
   Shield,
   FileText,
   AlertCircle,
+  Wallet,
+  ShieldCheck,
+  Globe,
 } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, formatCurrency, currency } = useAuth();
   const [clientJobs, setClientJobs] = useState<Job[]>([]);
   const [clientApplications, setClientApplications] = useState<Application[]>([]);
   const [studentApplications, setStudentApplications] = useState<Application[]>([]);
@@ -70,10 +73,14 @@ export default function DashboardPage() {
         {/* Welcome Header */}
         <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-xl border border-brand-200">
+            <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xl border border-blue-200">
               {user.avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover rounded-2xl" />
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="w-full h-full object-cover rounded-2xl"
+                />
               ) : (
                 user.name[0]
               )}
@@ -89,10 +96,12 @@ export default function DashboardPage() {
               </div>
               <p className="text-xs text-slate-500">
                 {user.role === 'client'
-                  ? 'Manage your posted tasks, review candidate proposals, and hire students.'
+                  ? 'Manage your posted tasks, cross-border concierge care, and escrow milestones.'
                   : user.role === 'student'
-                  ? `Track your active applications, match scores, and verified hourly rate ($${user.hourlyRate || 25}/hr).`
-                  : 'Platform supervision and administrative control.'}
+                  ? `Track active task proposals, match scores, and verified wallet payouts (${formatCurrency(
+                      user.walletBalance || 0
+                    )} available).`
+                  : 'Platform supervision and administrative arbitration.'}
               </p>
             </div>
           </div>
@@ -101,7 +110,7 @@ export default function DashboardPage() {
             {user.role === 'client' && (
               <Link
                 href="/jobs/new"
-                className="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>Post New Task</span>
@@ -113,7 +122,7 @@ export default function DashboardPage() {
                 <VerificationBadge
                   userId={user.id}
                   status={user.verificationStatus}
-                  editable={true}
+                  editable={false}
                   size="md"
                 />
               </div>
@@ -144,17 +153,17 @@ export default function DashboardPage() {
               </div>
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
                 <p className="text-xs font-medium text-slate-500">Applicants Received</p>
-                <p className="text-2xl font-bold text-brand-600 mt-1">{clientApplications.length}</p>
+                <p className="text-2xl font-bold text-blue-600 mt-1">{clientApplications.length}</p>
               </div>
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
                 <p className="text-xs font-medium text-slate-500">Tasks In Progress</p>
-                <p className="text-2xl font-bold text-blue-600 mt-1">
+                <p className="text-2xl font-bold text-emerald-600 mt-1">
                   {clientJobs.filter((j) => j.status === 'hired').length}
                 </p>
               </div>
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
                 <p className="text-xs font-medium text-slate-500">Completed Tasks</p>
-                <p className="text-2xl font-bold text-emerald-600 mt-1">
+                <p className="text-2xl font-bold text-purple-600 mt-1">
                   {clientJobs.filter((j) => j.status === 'completed').length}
                 </p>
               </div>
@@ -165,11 +174,13 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900">My Posted Tasks</h2>
-                  <p className="text-xs text-slate-500">Manage your active, hired, and completed tasks</p>
+                  <p className="text-xs text-slate-500">
+                    Manage your active, hired, and cross-border concierge tasks
+                  </p>
                 </div>
                 <Link
                   href="/jobs/new"
-                  className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1"
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1"
                 >
                   <PlusCircle className="w-3.5 h-3.5" /> Post Another Task
                 </Link>
@@ -181,7 +192,7 @@ export default function DashboardPage() {
                   <p className="text-xs text-slate-500 font-medium">You haven&apos;t posted any tasks yet.</p>
                   <Link
                     href="/jobs/new"
-                    className="mt-3 inline-block px-4 py-2 bg-brand-600 text-white text-xs font-semibold rounded-xl"
+                    className="mt-3 inline-block px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl"
                   >
                     Post your first task
                   </Link>
@@ -193,7 +204,7 @@ export default function DashboardPage() {
                       <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
                         <th className="pb-3">Task Title</th>
                         <th className="pb-3">Category</th>
-                        <th className="pb-3">Rate</th>
+                        <th className="pb-3">Budget Rate</th>
                         <th className="pb-3">Status</th>
                         <th className="pb-3">Applicants</th>
                         <th className="pb-3 text-right">Action</th>
@@ -205,12 +216,19 @@ export default function DashboardPage() {
                         return (
                           <tr key={job.id} className="hover:bg-slate-50/80 transition">
                             <td className="py-4 pr-4 font-semibold text-slate-900 max-w-xs truncate">
-                              <Link href={`/jobs/${job.id}`} className="hover:text-brand-600">
+                              <Link href={`/jobs/${job.id}`} className="hover:text-blue-600">
                                 {job.title}
                               </Link>
+                              {job.isCrossBorder && (
+                                <span className="block text-[10px] text-indigo-600 font-normal">
+                                  🌐 Cross-Border Diaspora Care
+                                </span>
+                              )}
                             </td>
                             <td className="py-4 text-slate-600">{job.category}</td>
-                            <td className="py-4 font-medium text-slate-800">${job.hourlyRate}/hr</td>
+                            <td className="py-4 font-medium text-slate-800">
+                              {formatCurrency(job.hourlyRate)}/hr
+                            </td>
                             <td className="py-4">
                               <span
                                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -232,7 +250,7 @@ export default function DashboardPage() {
                             <td className="py-4 text-right">
                               <Link
                                 href={`/jobs/${job.id}`}
-                                className="px-3 py-1.5 bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-700 font-semibold rounded-lg text-xs transition"
+                                className="px-3 py-1.5 bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 font-semibold rounded-lg text-xs transition"
                               >
                                 Manage
                               </Link>
@@ -266,8 +284,10 @@ export default function DashboardPage() {
                 </p>
               </div>
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-                <p className="text-xs font-medium text-slate-500">Hourly Rate Target</p>
-                <p className="text-2xl font-bold text-brand-600 mt-1">${user.hourlyRate || 25}/hr</p>
+                <p className="text-xs font-medium text-slate-500">Wallet Available</p>
+                <p className="text-2xl font-bold text-emerald-700 mt-1">
+                  {formatCurrency(user.walletBalance || 0)}
+                </p>
               </div>
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
                 <p className="text-xs font-medium text-slate-500">Average Rating</p>
@@ -284,11 +304,11 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900">My Job Applications</h2>
-                  <p className="text-xs text-slate-500">Track application status and client responses</p>
+                  <p className="text-xs text-slate-500">Track application status and escrow milestones</p>
                 </div>
                 <Link
                   href="/jobs"
-                  className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1"
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1"
                 >
                   <Briefcase className="w-3.5 h-3.5" /> Browse More Tasks
                 </Link>
@@ -302,7 +322,7 @@ export default function DashboardPage() {
                   </p>
                   <Link
                     href="/jobs"
-                    className="mt-3 inline-block px-4 py-2 bg-brand-600 text-white text-xs font-semibold rounded-xl"
+                    className="mt-3 inline-block px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl"
                   >
                     Explore Open Opportunities
                   </Link>
@@ -313,7 +333,7 @@ export default function DashboardPage() {
                     <thead>
                       <tr className="border-b border-slate-100 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
                         <th className="pb-3">Task</th>
-                        <th className="pb-3">Your Proposed Rate</th>
+                        <th className="pb-3">Proposed Rate</th>
                         <th className="pb-3">Application Status</th>
                         <th className="pb-3">Applied On</th>
                         <th className="pb-3 text-right">Details</th>
@@ -327,7 +347,7 @@ export default function DashboardPage() {
                             <td className="py-4 pr-4">
                               <Link
                                 href={`/jobs/${app.jobId}`}
-                                className="font-semibold text-slate-900 hover:text-brand-600 block text-xs"
+                                className="font-semibold text-slate-900 hover:text-blue-600 block text-xs"
                               >
                                 {job?.title || `Task #${app.jobId}`}
                               </Link>
@@ -335,7 +355,9 @@ export default function DashboardPage() {
                                 Client: {job?.clientName || 'Client'}
                               </span>
                             </td>
-                            <td className="py-4 font-bold text-slate-800">${app.proposedRate}/hr</td>
+                            <td className="py-4 font-bold text-slate-800">
+                              {formatCurrency(app.proposedRate)}/hr
+                            </td>
                             <td className="py-4">
                               <span
                                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -347,7 +369,7 @@ export default function DashboardPage() {
                                 }`}
                               >
                                 {app.status === 'hired'
-                                  ? '✓ Hired'
+                                  ? '✓ Hired (Escrow Protected)'
                                   : app.status === 'rejected'
                                   ? '✕ Rejected'
                                   : 'Pending Review'}
@@ -359,7 +381,7 @@ export default function DashboardPage() {
                             <td className="py-4 text-right">
                               <Link
                                 href={`/jobs/${app.jobId}`}
-                                className="px-3 py-1.5 bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-700 font-semibold rounded-lg text-xs transition"
+                                className="px-3 py-1.5 bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 font-semibold rounded-lg text-xs transition"
                               >
                                 View Job
                               </Link>
@@ -374,17 +396,17 @@ export default function DashboardPage() {
             </div>
 
             {/* Recommended High-Match Jobs for this Student */}
-            <div className="bg-gradient-to-br from-brand-50/50 via-white to-indigo-50/50 border border-brand-200 rounded-3xl p-6 sm:p-8 shadow-xs">
+            <div className="bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/50 border border-blue-200 rounded-3xl p-6 sm:p-8 shadow-xs">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-brand-600" />
+                  <Sparkles className="w-5 h-5 text-blue-600" />
                   <h2 className="text-lg font-bold text-slate-900">
                     Recommended Tasks (Simulated AI Match)
                   </h2>
                 </div>
                 <Link
                   href="/jobs"
-                  className="text-xs font-semibold text-brand-600 hover:underline flex items-center gap-1"
+                  className="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1"
                 >
                   <span>See All</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -404,7 +426,7 @@ export default function DashboardPage() {
                       >
                         <div>
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-[11px] font-semibold text-brand-700 px-2 py-0.5 bg-brand-50 rounded">
+                            <span className="text-[11px] font-semibold text-blue-700 px-2 py-0.5 bg-blue-50 rounded">
                               {job.category}
                             </span>
                             <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
@@ -415,10 +437,12 @@ export default function DashboardPage() {
                           <p className="text-xs text-slate-500 line-clamp-2">{job.description}</p>
                         </div>
                         <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between">
-                          <span className="text-xs font-bold text-slate-900">${job.hourlyRate}/hr</span>
+                          <span className="text-xs font-bold text-emerald-600">
+                            {formatCurrency(job.hourlyRate)}/hr
+                          </span>
                           <Link
                             href={`/jobs/${job.id}`}
-                            className="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1"
+                            className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
                           >
                             <span>Apply</span>
                             <ArrowRight className="w-3 h-3" />

@@ -1,11 +1,13 @@
 'use client';
 
 import React from 'react';
-import { Search, Filter, RotateCcw } from 'lucide-react';
+import { Search, Filter, RotateCcw, Globe } from 'lucide-react';
 import { JobCategory, JobFilters as JobFiltersType } from '@/types';
+import { useAuth } from '@/context/AuthContext';
 
 const CATEGORIES: ('All' | JobCategory)[] = [
   'All',
+  'Family & Elderly Care',
   'Web Development',
   'Graphic Design',
   'Tutoring',
@@ -29,6 +31,8 @@ export default function JobFilters({
   onReset,
   totalResults,
 }: JobFiltersProps) {
+  const { currency } = useAuth();
+
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs mb-8 space-y-4">
       {/* Search Input and Category Selector */}
@@ -40,8 +44,8 @@ export default function JobFilters({
             type="text"
             value={filters.query || ''}
             onChange={(e) => onChange({ ...filters, query: e.target.value })}
-            placeholder="Search by role, skills (e.g. React, Figma, Math), or client..."
-            className="w-full text-xs sm:text-sm pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-500 text-slate-900 transition"
+            placeholder="Search by role, diaspora care, skills (e.g. Hospital escort, React), or client..."
+            className="w-full text-xs sm:text-sm pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 transition"
           />
         </div>
 
@@ -50,7 +54,7 @@ export default function JobFilters({
           <select
             value={filters.category || 'All'}
             onChange={(e) => onChange({ ...filters, category: e.target.value })}
-            className="w-full text-xs sm:text-sm px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-500 text-slate-900 transition"
+            className="w-full text-xs sm:text-sm px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 transition"
           >
             {CATEGORIES.map((cat) => (
               <option key={cat} value={cat}>
@@ -66,8 +70,8 @@ export default function JobFilters({
             type="text"
             value={filters.location || ''}
             onChange={(e) => onChange({ ...filters, location: e.target.value })}
-            placeholder="City or state..."
-            className="w-full text-xs sm:text-sm px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-brand-500 text-slate-900 transition"
+            placeholder="City (e.g. Bangalore, London, Remote)..."
+            className="w-full text-xs sm:text-sm px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-slate-900 transition"
           />
         </div>
       </div>
@@ -75,24 +79,38 @@ export default function JobFilters({
       {/* Second Row: Toggles, Rates, Reset */}
       <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-100">
         <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-slate-700">
+          {/* Cross Border Only Toggle */}
+          <label className="flex items-center gap-2 cursor-pointer select-none px-2.5 py-1 rounded-lg bg-blue-50/70 border border-blue-200 text-blue-900">
+            <input
+              type="checkbox"
+              checked={!!filters.crossBorderOnly}
+              onChange={(e) => onChange({ ...filters, crossBorderOnly: e.target.checked })}
+              className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+            />
+            <span className="font-semibold flex items-center gap-1">
+              <Globe className="w-3.5 h-3.5 text-blue-600" />
+              Cross-Border Concierge Only
+            </span>
+          </label>
+
           {/* Remote Only Toggle */}
           <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={!!filters.remoteOnly}
               onChange={(e) => onChange({ ...filters, remoteOnly: e.target.checked })}
-              className="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500"
+              className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
             />
             <span>Remote Tasks Only</span>
           </label>
 
           {/* Min Hourly Rate */}
           <div className="flex items-center gap-1.5">
-            <span className="text-slate-500">Min $/hr:</span>
+            <span className="text-slate-500">Min Rate:</span>
             <input
               type="number"
               min="0"
-              max="100"
+              max="1000"
               value={filters.minRate || ''}
               onChange={(e) =>
                 onChange({
@@ -107,11 +125,11 @@ export default function JobFilters({
 
           {/* Max Hourly Rate */}
           <div className="flex items-center gap-1.5">
-            <span className="text-slate-500">Max $/hr:</span>
+            <span className="text-slate-500">Max Rate:</span>
             <input
               type="number"
               min="0"
-              max="200"
+              max="5000"
               value={filters.maxRate || ''}
               onChange={(e) =>
                 onChange({
@@ -119,7 +137,7 @@ export default function JobFilters({
                   maxRate: e.target.value ? Number(e.target.value) : undefined,
                 })
               }
-              placeholder="100"
+              placeholder="200"
               className="w-16 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs"
             />
           </div>
@@ -132,7 +150,7 @@ export default function JobFilters({
           <button
             type="button"
             onClick={onReset}
-            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-brand-600 hover:bg-slate-100 rounded-lg transition"
+            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset</span>

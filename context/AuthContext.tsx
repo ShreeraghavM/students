@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { User, UserRole } from '@/types';
+import { User, UserRole, Currency, Notification } from '@/types';
 import {
   getCurrentSessionUserId,
   setCurrentSessionUserId,
@@ -11,8 +11,27 @@ import {
   createUser,
   updateUser,
   getUsers,
+  getNotificationsByUserId,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
   initStorage,
 } from '@/lib/storage';
+
+export const CURRENCY_RATES: Record<Currency, { rate: number; symbol: string; label: string }> = {
+  USD: { rate: 1.0, symbol: '$', label: 'USD ($)' },
+  GBP: { rate: 0.79, symbol: '£', label: 'GBP (£)' },
+  EUR: { rate: 0.92, symbol: '€', label: 'EUR (€)' },
+  INR: { rate: 86.5, symbol: '₹', label: 'INR (₹)' },
+};
+
+export function formatCurrencyAmount(usdAmount: number, currency: Currency = 'USD'): string {
+  const conf = CURRENCY_RATES[currency] || CURRENCY_RATES.USD;
+  const converted = usdAmount * conf.rate;
+  if (currency === 'INR') {
+    return `${conf.symbol}${Math.round(converted).toLocaleString('en-IN')}`;
+  }
+  return `${conf.symbol}${converted.toFixed(2)}`;
+}
 
 export function calculateAge(dobString: string): number {
   if (!dobString) return 0;
@@ -53,6 +72,15 @@ interface AuthContextType {
   refreshUser: () => void;
   updateCurrentUserProfile: (partial: Partial<User>) => User;
   allDemoUsers: User[];
+  currency: Currency;
+  setCurrency: (c: Currency) => void;
+  formatCurrency: (usdAmount: number, targetCurrency?: Currency) => string;
+  convertFromUSD: (usdAmount: number, targetCurrency?: Currency) => number;
+  notifications: Notification[];
+  unreadNotificationsCount: number;
+  refreshNotifications: () => void;
+  markNotificationRead: (id: string) => void;
+  markAllNotificationsRead: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,6 +89,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [demoUsers, setDemoUsers] = useState<User[]>([]);
+  const [currency, setCurrencyState] = useState<Currency>('USD');
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  const refreshNotifications = useCallback(() => {
+    if (user) {
+      const list = getNotificationsByUserId(user.id);
+      setNotifications(list);
+    } else {
+      setNotifications([]);
+    }
+  }, [user]);
 
   const loadSession = useCallback(() => {
     initStorage();
@@ -69,20 +108,65 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const found = getUserById(sessionUserId);
       if (found) {
         setUser(found);
+        setNotifications(getNotificationsByUserId(found.id));
       } else {
         clearCurrentSession();
         setUser(null);
+        setNotifications([]);
       }
     } else {
       setUser(null);
+      setNotifications([]);
     }
     setDemoUsers(getUsers());
+
+    // Load saved currency preference if any
+    if (typeof window !== 'undefined') {
+      const savedCurr = localStorage.getItem('gsap_currency') as Currency;
+      if (savedCurr && CURRENCY_RATES[savedCurr]) {
+        setCurrencyState(savedCurr);
+      }
+    }
+
     setIsLoading(false);
   }, []);
 
   useEffect(() => {
     loadSession();
   }, [loadSession]);
+
+  useEffect(() => {
+    refreshNotifications();
+  }, [user, refreshNotifications]);
+
+  const setCurrency = (c: Currency) => {
+    setCurrencyState(c);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('gsap_currency', c);
+    }
+  };
+
+  const formatCurrency = (usdAmount: number, targetCurrency?: Currency): string => {
+    return formatCurrencyAmount(usdAmount, targetCurrency || currency);
+  };
+
+  const convertFromUSD = (usdAmount: number, targetCurrency?: Currency): number => {
+    const c = targetCurrency || currency;
+    const rate = CURRENCY_RATES[c]?.rate || 1.0;
+    return Math.round(usdAmount * rate * 100) / 100;
+  };
+
+  const markNotificationRead = (id: string) => {
+    markNotificationAsRead(id);
+    refreshNotifications();
+  };
+
+  const markAllNotificationsRead = () => {
+    if (user) {
+      markAllNotificationsAsRead(user.id);
+      refreshNotifications();
+    }
+  };
 
   const login = async (email: string, password: string): Promise<User> => {
     const trimmedEmail = email.trim();
@@ -103,6 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setCurrentSessionUserId(foundUser.id);
     setUser(foundUser);
+    setNotifications(getNotificationsByUserId(foundUser.id));
     return foundUser;
   };
 
@@ -135,6 +220,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       university: data.university,
       degree: data.degree,
       verificationStatus: data.role === 'student' ? 'pending' : undefined,
+      walletBalance: data.role === 'student' ? 0 : undefined,
       createdAt: new Date().toISOString(),
     };
 
@@ -142,12 +228,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setCurrentSessionUserId(created.id);
     setUser(created);
     setDemoUsers(getUsers());
+    setNotifications(getNotificationsByUserId(created.id));
     return created;
   };
 
   const logout = () => {
     clearCurrentSession();
     setUser(null);
+    setNotifications([]);
   };
 
   const switchUser = (userId: string) => {
@@ -155,6 +243,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (target) {
       setCurrentSessionUserId(target.id);
       setUser(target);
+      setNotifications(getNotificationsByUserId(target.id));
     }
   };
 
@@ -163,6 +252,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const refreshed = getUserById(user.id);
       if (refreshed) {
         setUser(refreshed);
+        setNotifications(getNotificationsByUserId(refreshed.id));
       }
     }
     setDemoUsers(getUsers());
@@ -176,6 +266,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return updated;
   };
 
+  const unreadNotificationsCount = notifications.filter((n) => !n.read).length;
+
   return (
     <AuthContext.Provider
       value={{
@@ -188,6 +280,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         refreshUser,
         updateCurrentUserProfile,
         allDemoUsers: demoUsers,
+        currency,
+        setCurrency,
+        formatCurrency,
+        convertFromUSD,
+        notifications,
+        unreadNotificationsCount,
+        refreshNotifications,
+        markNotificationRead,
+        markAllNotificationsRead,
       }}
     >
       {children}

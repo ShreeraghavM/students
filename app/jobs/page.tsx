@@ -1,22 +1,27 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { getJobs } from '@/lib/storage';
 import { Job, JobFilters as JobFiltersType } from '@/types';
 import JobCard from '@/components/jobs/JobCard';
 import JobFilters from '@/components/jobs/JobFilters';
-import { Briefcase, PlusCircle, Sparkles, FilterX } from 'lucide-react';
+import { Briefcase, PlusCircle, Sparkles, FilterX, Globe } from 'lucide-react';
 
-export default function JobsPage() {
+function JobsContent() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get('category') || 'All';
+
   const [jobs, setJobs] = useState<Job[]>([]);
   const [filters, setFilters] = useState<JobFiltersType>({
-    category: 'All',
+    category: initialCategory,
     query: '',
     location: '',
     remoteOnly: false,
+    crossBorderOnly: false,
     minRate: undefined,
     maxRate: undefined,
   });
@@ -30,12 +35,20 @@ export default function JobsPage() {
     loadJobs();
   }, []);
 
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    if (cat) {
+      setFilters((prev) => ({ ...prev, category: cat }));
+    }
+  }, [searchParams]);
+
   const handleResetFilters = () => {
     setFilters({
       category: 'All',
       query: '',
       location: '',
       remoteOnly: false,
+      crossBorderOnly: false,
       minRate: undefined,
       maxRate: undefined,
     });
@@ -50,9 +63,20 @@ export default function JobsPage() {
         const matchesDesc = job.description.toLowerCase().includes(q);
         const matchesClient = job.clientName.toLowerCase().includes(q);
         const matchesSkills = job.requiredSkills.some((s) => s.toLowerCase().includes(q));
-        if (!matchesTitle && !matchesDesc && !matchesClient && !matchesSkills) {
+        const matchesCorridor =
+          job.crossBorderInfo &&
+          (job.crossBorderInfo.senderLocation.toLowerCase().includes(q) ||
+            job.crossBorderInfo.recipientLocation.toLowerCase().includes(q) ||
+            job.crossBorderInfo.languagePreference.toLowerCase().includes(q));
+
+        if (!matchesTitle && !matchesDesc && !matchesClient && !matchesSkills && !matchesCorridor) {
           return false;
         }
+      }
+
+      // Cross Border Only filter
+      if (filters.crossBorderOnly && !job.isCrossBorder && job.category !== 'Family & Elderly Care') {
+        return false;
       }
 
       // Category filter
@@ -70,7 +94,11 @@ export default function JobsPage() {
         const loc = filters.location.toLowerCase().trim();
         const matchesLoc = job.location.toLowerCase().includes(loc);
         const matchesRemote = job.isRemote && loc.includes('remote');
-        if (!matchesLoc && !matchesRemote) return false;
+        const matchesCorridor =
+          job.crossBorderInfo &&
+          (job.crossBorderInfo.senderLocation.toLowerCase().includes(loc) ||
+            job.crossBorderInfo.recipientLocation.toLowerCase().includes(loc));
+        if (!matchesLoc && !matchesRemote && !matchesCorridor) return false;
       }
 
       // Min Rate
@@ -96,19 +124,19 @@ export default function JobsPage() {
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Marketplace Tasks & Jobs
             </h1>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200">
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
               {filteredJobs.length} Available
             </span>
           </div>
           <p className="text-xs sm:text-sm text-slate-500">
-            Browse paid hourly tasks posted by clients for verified university students (18+ only)
+            Browse paid hourly tasks, cross-border diaspora care, and technical student gigs (18+ only)
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {user?.role === 'student' && (
             <div className="hidden lg:flex items-center gap-2 px-3.5 py-2 bg-indigo-50/80 border border-indigo-200 rounded-xl text-xs text-indigo-800">
-              <Sparkles className="w-4 h-4 text-brand-600 flex-shrink-0" />
+              <Sparkles className="w-4 h-4 text-blue-600 flex-shrink-0" />
               <span>
                 Personalized <strong>AI Match Scores</strong> are calculated for your skills & rate.
               </span>
@@ -118,7 +146,7 @@ export default function JobsPage() {
           {user?.role === 'client' && (
             <Link
               href="/jobs/new"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Post New Task</span>
@@ -154,12 +182,26 @@ export default function JobsPage() {
           </p>
           <button
             onClick={handleResetFilters}
-            className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl transition"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl transition"
           >
             Reset All Filters
           </button>
         </div>
       )}
     </div>
+  );
+}
+
+export default function JobsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-7xl mx-auto px-4 py-16 text-center text-xs text-slate-400">
+          Loading marketplace tasks...
+        </div>
+      }
+    >
+      <JobsContent />
+    </Suspense>
   );
 }

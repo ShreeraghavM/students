@@ -12,18 +12,21 @@ import {
 } from '@/lib/storage';
 import { User, Review, Job, VerificationStatus } from '@/types';
 import VerificationBadge from '@/components/ai/VerificationBadge';
+import VerificationModal from '@/components/verification/VerificationModal';
 import {
   GraduationCap,
   Briefcase,
   MapPin,
   Calendar,
-  DollarSign,
   Star,
   Edit3,
   CheckCircle2,
   Sparkles,
   ShieldCheck,
   BookOpen,
+  Wallet,
+  ArrowUpRight,
+  Award,
 } from 'lucide-react';
 
 interface ProfileClientProps {
@@ -33,12 +36,16 @@ interface ProfileClientProps {
 export default function ProfileClient({ id }: ProfileClientProps) {
   const params = useParams();
   const userId = id || (params?.id as string);
-  const { user: currentUser, updateCurrentUserProfile, refreshUser } = useAuth();
+  const { user: currentUser, updateCurrentUserProfile, refreshUser, formatCurrency } = useAuth();
 
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [ratingStats, setRatingStats] = useState({ average: 5.0, count: 0 });
   const [userJobs, setUserJobs] = useState<Job[]>([]);
+
+  // Modals
+  const [isVerifModalOpen, setIsVerifModalOpen] = useState(false);
+  const [payoutSuccessMsg, setPayoutSuccessMsg] = useState<string | null>(null);
 
   // Edit Mode
   const [isEditing, setIsEditing] = useState(false);
@@ -116,6 +123,31 @@ export default function ProfileClient({ id }: ProfileClientProps) {
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
+  const handleWithdrawWallet = () => {
+    const balance = profileUser.walletBalance || 0;
+    if (balance <= 0) {
+      alert('Wallet balance is currently $0. Complete tasks with escrow to earn payouts.');
+      return;
+    }
+
+    if (
+      confirm(
+        `Withdraw ${formatCurrency(balance)} to your linked local bank account or digital wallet?`
+      )
+    ) {
+      const updated = updateUser(profileUser.id, { walletBalance: 0 });
+      setProfileUser(updated);
+      if (currentUser?.id === profileUser.id) {
+        updateCurrentUserProfile(updated);
+      }
+      refreshUser();
+      setPayoutSuccessMsg(
+        `Withdrawal of ${formatCurrency(balance)} successfully processed to bank account!`
+      );
+      setTimeout(() => setPayoutSuccessMsg(null), 5000);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {saveSuccess && (
@@ -125,11 +157,18 @@ export default function ProfileClient({ id }: ProfileClientProps) {
         </div>
       )}
 
+      {payoutSuccessMsg && (
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-2 text-xs font-semibold text-emerald-800 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+          <span>{payoutSuccessMsg}</span>
+        </div>
+      )}
+
       {/* Main Profile Header Card */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-xs relative overflow-hidden">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-6 border-b border-slate-100">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-            <div className="w-20 h-20 rounded-3xl bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-2xl border-2 border-brand-200 overflow-hidden flex-shrink-0 shadow-sm">
+            <div className="w-20 h-20 rounded-3xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-2xl border-2 border-blue-200 overflow-hidden flex-shrink-0 shadow-sm">
               {profileUser.avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -154,10 +193,7 @@ export default function ProfileClient({ id }: ProfileClientProps) {
                   <VerificationBadge
                     userId={profileUser.id}
                     status={profileUser.verificationStatus}
-                    editable={isOwner}
-                    onStatusChange={(status) => {
-                      setProfileUser((prev) => (prev ? { ...prev, verificationStatus: status } : null));
-                    }}
+                    editable={false}
                     size="md"
                   />
                 )}
@@ -186,16 +222,32 @@ export default function ProfileClient({ id }: ProfileClientProps) {
             </div>
           </div>
 
-          {/* Edit Profile Button */}
-          {isOwner && (
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 flex-shrink-0"
-            >
-              <Edit3 className="w-3.5 h-3.5" />
-              <span>{isEditing ? 'Cancel Editing' : 'Edit Profile'}</span>
-            </button>
-          )}
+          {/* Action Buttons: Verification & Edit */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {isOwner && profileUser.role === 'student' && (
+              <button
+                onClick={() => setIsVerifModalOpen(true)}
+                className="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs"
+              >
+                <Award className="w-4 h-4 text-emerald-600" />
+                <span>
+                  {profileUser.verificationStatus === 'verified'
+                    ? 'View 18+ Certificate'
+                    : 'Verify 18+ Student ID'}
+                </span>
+              </button>
+            )}
+
+            {isOwner && (
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 flex-shrink-0"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>{isEditing ? 'Cancel Editing' : 'Edit Profile'}</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Edit Form */}
@@ -269,8 +321,8 @@ export default function ProfileClient({ id }: ProfileClientProps) {
                     </label>
                     <input
                       type="number"
-                      min="15"
-                      max="150"
+                      min="1"
+                      max="1000"
                       value={hourlyRate}
                       onChange={(e) => setHourlyRate(Number(e.target.value))}
                       className="w-full text-xs sm:text-sm px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl"
@@ -295,7 +347,7 @@ export default function ProfileClient({ id }: ProfileClientProps) {
             <div className="flex items-center gap-3 pt-2">
               <button
                 type="submit"
-                className="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl text-xs transition"
+                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition"
               >
                 Save Changes
               </button>
@@ -322,76 +374,104 @@ export default function ProfileClient({ id }: ProfileClientProps) {
               </div>
             )}
 
+            {/* Student Stats & Wallet Grid */}
             {profileUser.role === 'student' && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-100">
                 {/* University Info */}
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1">
-                    <BookOpen className="w-3.5 h-3.5 text-brand-600" />
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1">
+                    <BookOpen className="w-3.5 h-3.5 text-blue-600" />
                     Education
                   </h4>
-                  <p className="text-sm font-bold text-slate-800">
+                  <p className="text-sm font-bold text-slate-800 truncate">
                     {profileUser.university || 'University Student'}
                   </p>
-                  <p className="text-xs text-slate-500">{profileUser.degree || 'Undergraduate'}</p>
+                  <p className="text-xs text-slate-500 truncate">
+                    {profileUser.degree || 'Undergraduate'}
+                  </p>
                 </div>
 
                 {/* Hourly Rate */}
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1">
-                    <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
-                    Hourly Service Rate
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1">
+                    <span className="text-emerald-600 font-bold">$</span>
+                    Hourly Rate
                   </h4>
-                  <p className="text-2xl font-extrabold text-slate-900">
-                    ${profileUser.hourlyRate || 25}
+                  <p className="text-xl font-extrabold text-slate-900">
+                    {formatCurrency(profileUser.hourlyRate || 25)}
                     <span className="text-xs font-normal text-slate-500"> / hour</span>
                   </p>
                 </div>
 
                 {/* Client Rating */}
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1">
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
-                    Client Rating
+                    Rating
                   </h4>
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl font-extrabold text-slate-900">
+                    <span className="text-xl font-extrabold text-slate-900">
                       {ratingStats.average}
                     </span>
                     <div className="flex items-center text-amber-400">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}
-                          className={`w-4 h-4 ${
-                            i < Math.round(ratingStats.average) ? 'fill-amber-400' : 'text-slate-200'
+                          className={`w-3.5 h-3.5 ${
+                            i < Math.round(ratingStats.average)
+                              ? 'fill-amber-400'
+                              : 'text-slate-200'
                           }`}
                         />
                       ))}
                     </div>
-                    <span className="text-xs text-slate-400">({ratingStats.count} reviews)</span>
                   </div>
+                </div>
+
+                {/* Wallet Balance */}
+                <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl">
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1">
+                      <Wallet className="w-3.5 h-3.5 text-emerald-600" />
+                      Wallet
+                    </h4>
+                    {isOwner && (profileUser.walletBalance || 0) > 0 && (
+                      <button
+                        onClick={handleWithdrawWallet}
+                        className="text-[11px] font-bold text-emerald-700 hover:underline flex items-center gap-0.5"
+                      >
+                        Payout <ArrowUpRight className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-xl font-extrabold text-emerald-900">
+                    {formatCurrency(profileUser.walletBalance || 0)}
+                  </p>
+                  <p className="text-[10px] text-emerald-700">Released from completed escrow</p>
                 </div>
               </div>
             )}
 
             {/* Skills Pills for Student */}
-            {profileUser.role === 'student' && profileUser.skills && profileUser.skills.length > 0 && (
-              <div className="pt-4 border-t border-slate-100">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                  Skills & Specialties
-                </h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {profileUser.skills.map((skill, i) => (
-                    <span
-                      key={i}
-                      className="px-3 py-1 bg-brand-50 text-brand-700 text-xs font-semibold rounded-lg border border-brand-100"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+            {profileUser.role === 'student' &&
+              profileUser.skills &&
+              profileUser.skills.length > 0 && (
+                <div className="pt-4 border-t border-slate-100">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                    Verified Competencies & Specialties
+                  </h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {profileUser.skills.map((skill, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg border border-blue-100"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         )}
       </div>
@@ -418,7 +498,10 @@ export default function ProfileClient({ id }: ProfileClientProps) {
         ) : (
           <div className="space-y-3">
             {reviews.map((rev) => (
-              <div key={rev.id} className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80">
+              <div
+                key={rev.id}
+                className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80"
+              >
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-xs text-slate-900">{rev.reviewerName}</span>
@@ -446,6 +529,16 @@ export default function ProfileClient({ id }: ProfileClientProps) {
           </div>
         )}
       </div>
+
+      {/* Verification Modal */}
+      <VerificationModal
+        user={profileUser}
+        isOpen={isVerifModalOpen}
+        onClose={() => setIsVerifModalOpen(false)}
+        onSuccess={() => {
+          loadProfile();
+        }}
+      />
     </div>
   );
 }
