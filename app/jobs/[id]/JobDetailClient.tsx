@@ -54,10 +54,20 @@ export default function JobDetailClient({ id }: JobDetailClientProps) {
   const { user, formatCurrency, currency } = useAuth();
   const jobId = id || (params?.id as string);
 
-  const [job, setJob] = useState<Job | null>(null);
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [hiredStudent, setHiredStudent] = useState<User | null>(null);
+  const initialJob = jobId ? getJobById(jobId) || null : null;
+  const [job, setJob] = useState<Job | null>(initialJob);
+  const [applications, setApplications] = useState<Application[]>(() =>
+    jobId ? getApplicationsByJobId(jobId) : []
+  );
+  const [reviews, setReviews] = useState<Review[]>(() =>
+    jobId ? getReviewsByJobId(jobId) : []
+  );
+  const [hiredStudent, setHiredStudent] = useState<User | null>(() => {
+    if (initialJob?.hiredStudentId) {
+      return getUserById(initialJob.hiredStudentId) || null;
+    }
+    return null;
+  });
 
   // Active workspace tab
   const [activeTab, setActiveTab] = useState<'details' | 'chat' | 'applicants'>('details');
@@ -77,11 +87,11 @@ export default function JobDetailClient({ id }: JobDetailClientProps) {
   const [isSubmittingApp, setIsSubmittingApp] = useState(false);
 
   // Edit form state
-  const [editTitle, setEditTitle] = useState('');
-  const [editDesc, setEditDesc] = useState('');
-  const [editRate, setEditRate] = useState(30);
-  const [editHours, setEditHours] = useState(15);
-  const [editStatus, setEditStatus] = useState<Job['status']>('open');
+  const [editTitle, setEditTitle] = useState(initialJob?.title || '');
+  const [editDesc, setEditDesc] = useState(initialJob?.description || '');
+  const [editRate, setEditRate] = useState(initialJob?.hourlyRate || 30);
+  const [editHours, setEditHours] = useState(initialJob?.estimatedHours || 15);
+  const [editStatus, setEditStatus] = useState<Job['status']>(initialJob?.status || 'open');
 
   const loadData = useCallback(() => {
     if (!jobId) return;

@@ -38,10 +38,20 @@ export default function ProfileClient({ id }: ProfileClientProps) {
   const userId = id || (params?.id as string);
   const { user: currentUser, updateCurrentUserProfile, refreshUser, formatCurrency } = useAuth();
 
-  const [profileUser, setProfileUser] = useState<User | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [ratingStats, setRatingStats] = useState({ average: 5.0, count: 0 });
-  const [userJobs, setUserJobs] = useState<Job[]>([]);
+  const initialProfile = userId ? getUserById(userId) || null : null;
+  const [profileUser, setProfileUser] = useState<User | null>(initialProfile);
+  const [reviews, setReviews] = useState<Review[]>(() =>
+    userId ? getReviewsByRevieweeId(userId) : []
+  );
+  const [ratingStats, setRatingStats] = useState(() =>
+    userId ? getUserAverageRating(userId) : { average: 5.0, count: 0 }
+  );
+  const [userJobs, setUserJobs] = useState<Job[]>(() => {
+    if (initialProfile && initialProfile.role === 'client') {
+      return getJobs().filter((j) => j.clientId === userId);
+    }
+    return [];
+  });
 
   // Modals
   const [isVerifModalOpen, setIsVerifModalOpen] = useState(false);
@@ -49,13 +59,13 @@ export default function ProfileClient({ id }: ProfileClientProps) {
 
   // Edit Mode
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState('');
-  const [bio, setBio] = useState('');
-  const [location, setLocation] = useState('');
-  const [hourlyRate, setHourlyRate] = useState<number>(25);
-  const [skillsInput, setSkillsInput] = useState('');
-  const [university, setUniversity] = useState('');
-  const [degree, setDegree] = useState('');
+  const [name, setName] = useState(initialProfile?.name || '');
+  const [bio, setBio] = useState(initialProfile?.bio || '');
+  const [location, setLocation] = useState(initialProfile?.location || '');
+  const [hourlyRate, setHourlyRate] = useState<number>(initialProfile?.hourlyRate || 25);
+  const [skillsInput, setSkillsInput] = useState((initialProfile?.skills || []).join(', '));
+  const [university, setUniversity] = useState(initialProfile?.university || '');
+  const [degree, setDegree] = useState(initialProfile?.degree || '');
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const loadProfile = useCallback(() => {
