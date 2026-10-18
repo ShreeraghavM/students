@@ -168,6 +168,27 @@ const SEED_USERS: User[] = [
     walletBalance: 120,
     createdAt: '2024-01-22T16:45:00.000Z',
   },
+  {
+    id: 'user_student_priya',
+    name: 'Priya Sharma',
+    email: 'priya.concierge@iisc.ac.in',
+    password: 'student123',
+    role: 'student',
+    dateOfBirth: '2002-09-14',
+    age: 22,
+    avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=150&auto=format&fit=crop&q=80',
+    bio: 'Pre-med & Healthcare Sciences student at IISc Bangalore. Experienced in hospital clinics, elderly accompaniment, bilingual communication (Kannada, Hindi, English), and medication management.',
+    location: 'Bangalore, India',
+    university: 'Indian Institute of Science (IISc)',
+    degree: 'B.S. Biomedical Sciences',
+    skills: ['Bilingual (Kannada/English)', 'Healthcare Support', 'Elderly Companion', 'Clinic Escort', 'Empathy'],
+    hourlyRate: 26,
+    verificationStatus: 'verified',
+    verificationCertId: 'GSAP-IISC-2024-9921',
+    verifiedAt: '2024-01-28T11:00:00.000Z',
+    walletBalance: 260,
+    createdAt: '2024-01-25T10:00:00.000Z',
+  },
 ];
 
 const SEED_JOBS: Job[] = [
