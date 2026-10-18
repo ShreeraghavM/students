@@ -110,9 +110,9 @@ export default function DashboardPage() {
             {user.role === 'client' && (
               <Link
                 href="/jobs/new"
-                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs shadow-glow-amber transition flex items-center gap-1.5"
               >
-                <PlusCircle className="w-4 h-4" />
+                <PlusCircle className="w-4 h-4 stroke-[2.5]" />
                 <span>Post New Task</span>
               </Link>
             )}
@@ -322,7 +322,7 @@ export default function DashboardPage() {
                   </p>
                   <Link
                     href="/jobs"
-                    className="mt-3 inline-block px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-xl"
+                    className="mt-3 inline-block px-4 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold rounded-xl shadow-glow-amber transition"
                   >
                     Explore Open Opportunities
                   </Link>

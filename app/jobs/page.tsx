@@ -121,24 +121,24 @@ function JobsContent() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-zinc-900 tracking-tight font-display">
               Marketplace Tasks & Jobs
             </h1>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+            <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-800 border border-amber-500/20">
               {filteredJobs.length} Available
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500">
+          <p className="text-xs sm:text-sm text-zinc-500">
             Browse paid hourly tasks, cross-border diaspora care, and technical student gigs (18+ only)
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {user?.role === 'student' && (
-            <div className="hidden lg:flex items-center gap-2 px-3.5 py-2 bg-indigo-50/80 border border-indigo-200 rounded-xl text-xs text-indigo-800">
-              <Sparkles className="w-4 h-4 text-blue-600 flex-shrink-0" />
+            <div className="hidden lg:flex items-center gap-2 px-3.5 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-zinc-300 font-mono">
+              <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
               <span>
-                Personalized <strong>AI Match Scores</strong> are calculated for your skills & rate.
+                Personalized <strong className="text-white">AI Match Scores</strong> are calculated for your skills & rate.
               </span>
             </div>
           )}
@@ -146,9 +146,9 @@ function JobsContent() {
           {user?.role === 'client' && (
             <Link
               href="/jobs/new"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 rounded-xl text-xs sm:text-sm font-bold shadow-glow-amber transition"
             >
-              <PlusCircle className="w-4 h-4" />
+              <PlusCircle className="w-4 h-4 stroke-[2.5]" />
               <span>Post New Task</span>
             </Link>
           )}

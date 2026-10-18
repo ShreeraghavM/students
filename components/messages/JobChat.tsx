@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Message, Job } from '@/types';
 import { useAuth } from '@/context/AuthContext';
 import { getMessagesByJobId, sendMessage } from '@/lib/storage';
+import { Send, Sparkles, CheckCheck, Lock, ShieldCheck, User as UserIcon } from 'lucide-react';
 
 interface JobChatProps {
   job: Job;
@@ -52,17 +53,17 @@ export default function JobChat({ job }: JobChatProps) {
 
   if (!user) {
     return (
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center text-slate-600 text-sm">
-        Please log in to access the task communication chat.
+      <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center text-zinc-400 text-xs font-mono">
+        Please log in to access the task communication workspace.
       </div>
     );
   }
 
   if (!isParticipant) {
     return (
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center text-slate-600 text-sm">
-        🔒 In-app direct chat is reserved for the task client, the hired student, and dispute
-        arbitrators.
+      <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 text-center text-zinc-400 text-xs font-mono space-y-2">
+        <Lock className="w-5 h-5 text-amber-400 mx-auto" />
+        <p>🔒 In-app direct chat is reserved for the task client, the hired student, and dispute arbitrators.</p>
       </div>
     );
   }
@@ -81,68 +82,63 @@ export default function JobChat({ job }: JobChatProps) {
         ];
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col h-[520px] overflow-hidden">
+    <div className="bg-white border border-zinc-200 rounded-3xl shadow-xs flex flex-col h-[540px] overflow-hidden">
       {/* Header */}
-      <div className="bg-slate-50 border-b border-slate-200 px-5 py-3.5 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
-          <h4 className="font-semibold text-slate-800 text-sm">Direct Task Workspace Chat</h4>
+      <div className="bg-zinc-950 border-b border-zinc-800 px-5 py-3.5 flex items-center justify-between text-white">
+        <div className="flex items-center space-x-2.5">
+          <span className="flex h-2 w-2 relative">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <h4 className="font-bold text-sm tracking-tight">Direct Task Workspace Chat</h4>
         </div>
-        <div className="text-xs text-slate-600 font-medium">
-          {job.hiredStudentId ? 'Active Hired Channel' : 'Pre-hire Consultation'}
+        <div className="text-[11px] text-zinc-400 font-mono font-bold">
+          {job.hiredStudentId ? 'Active Hired Channel (Escrow Locked)' : 'Pre-hire Consultation'}
         </div>
       </div>
 
       {/* Message Stream */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-slate-50/40">
+      <div className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-4 bg-zinc-50/60">
         {messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-600">
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-zinc-400">
             <span className="text-3xl mb-2">💬</span>
-            <p className="text-sm font-semibold text-slate-700">No messages yet</p>
-            <p className="text-xs max-w-xs text-slate-600 mt-1">
-              Start the conversation to discuss milestone details, scheduling, and coordinate work.
+            <p className="text-xs font-mono font-bold text-zinc-700">No messages in this workspace yet</p>
+            <p className="text-[11px] text-zinc-500 max-w-xs mt-1">
+              Coordinate schedule, task milestones, and photo receipts safely inside GSAP.
             </p>
           </div>
         ) : (
-          messages.map((m) => {
-            const isMe = m.senderId === user.id;
+          messages.map((msg) => {
+            const isMe = msg.senderId === user.id;
             return (
               <div
-                key={m.id}
-                className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[85%] ${
-                  isMe ? 'ml-auto' : 'mr-auto'
-                }`}
+                key={msg.id}
+                className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}
               >
-                <div className="flex items-center space-x-1.5 mb-1 px-1">
-                  <span className="text-xs font-semibold text-slate-700">
-                    {isMe ? 'You' : m.senderName}
-                  </span>
-                  <span
-                    className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
-                      m.senderRole === 'client'
-                        ? 'bg-blue-100 text-blue-700'
-                        : m.senderRole === 'student'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-purple-100 text-purple-700'
-                    }`}
-                  >
-                    {m.senderRole}
-                  </span>
-                  <span className="text-[10px] text-slate-600">
-                    {new Date(m.createdAt).toLocaleTimeString([], {
+                <div className="flex items-center space-x-1.5 mb-1 text-[11px] text-zinc-400 font-mono">
+                  <span className="font-semibold text-zinc-700">{msg.senderName}</span>
+                  <span className="text-zinc-300">•</span>
+                  <span className="capitalize text-zinc-500">({msg.senderRole})</span>
+                </div>
+
+                <div
+                  className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed whitespace-pre-line shadow-xs ${
+                    isMe
+                      ? 'bg-zinc-950 text-white rounded-tr-none'
+                      : 'bg-white border border-zinc-200 text-zinc-800 rounded-tl-none'
+                  }`}
+                >
+                  {msg.text}
+                </div>
+
+                <div className="flex items-center space-x-1 mt-1 text-[10px] text-zinc-400 font-mono">
+                  <span>
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}
                   </span>
-                </div>
-                <div
-                  className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                    isMe
-                      ? 'bg-blue-600 text-white rounded-tr-none shadow-sm'
-                      : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none shadow-sm'
-                  }`}
-                >
-                  {m.text}
+                  {isMe && <CheckCheck className="w-3 h-3 text-amber-500" />}
                 </div>
               </div>
             );
@@ -151,23 +147,24 @@ export default function JobChat({ job }: JobChatProps) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Quick Prompts */}
-      <div className="px-4 py-2 bg-slate-50 border-t border-slate-100 flex items-center space-x-2 overflow-x-auto scrollbar-none">
-        <span className="text-[11px] font-semibold text-slate-600 shrink-0">Quick reply:</span>
+      {/* Quick Prompts Bar */}
+      <div className="px-4 py-2 bg-white border-t border-zinc-100 flex items-center space-x-2 overflow-x-auto text-[11px]">
+        <span className="text-zinc-400 font-mono text-[10px] uppercase font-bold shrink-0">
+          Quick Suggestions:
+        </span>
         {quickPrompts.map((p, idx) => (
           <button
             key={idx}
-            type="button"
             onClick={() => handleSend(p)}
-            className="text-xs shrink-0 bg-white border border-slate-200 hover:border-blue-400 hover:bg-blue-50/50 text-slate-600 px-2.5 py-1 rounded-full transition"
+            className="whitespace-nowrap px-2.5 py-1 rounded-lg bg-zinc-100 hover:bg-amber-100 hover:text-amber-900 text-zinc-600 transition shrink-0"
           >
             {p}
           </button>
         ))}
       </div>
 
-      {/* Input box */}
-      <div className="p-3 bg-white border-t border-slate-200">
+      {/* Input Composer */}
+      <div className="p-3 bg-white border-t border-zinc-200">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -179,15 +176,16 @@ export default function JobChat({ job }: JobChatProps) {
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder="Type your message, ask a question, or share instructions..."
-            className="flex-1 border border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 rounded-xl px-4 py-2 text-sm outline-none transition"
+            placeholder="Type your message, milestone update, or question..."
+            className="flex-1 bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-2.5 text-xs text-zinc-900 placeholder-zinc-400 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-amber-500 font-sans"
           />
           <button
             type="submit"
             disabled={!inputText.trim()}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-xl text-sm transition shadow-sm"
+            className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-zinc-950 font-bold rounded-xl text-xs transition shadow-glow-amber flex items-center gap-1.5 shrink-0"
           >
-            Send
+            <Send className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span>Send</span>
           </button>
         </form>
       </div>

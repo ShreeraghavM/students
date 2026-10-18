@@ -4,6 +4,18 @@ import React, { useState } from 'react';
 import { Job, Application } from '@/types';
 import { useAuth, CURRENCY_RATES } from '@/context/AuthContext';
 import { hireApplicant, fundEscrow } from '@/lib/storage';
+import {
+  ShieldCheck,
+  Lock,
+  CheckCircle2,
+  Coins,
+  CreditCard,
+  Building,
+  Smartphone,
+  Sparkles,
+  ArrowRight,
+  X,
+} from 'lucide-react';
 
 interface EscrowModalProps {
   job: Job;
@@ -41,7 +53,7 @@ export default function EscrowModal({
       fundEscrow(job.id, totalUSD);
       setIsProcessing(false);
       setStep('success');
-    }, 1200);
+    }, 1100);
   };
 
   const handleFinish = () => {
@@ -50,24 +62,30 @@ export default function EscrowModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-zinc-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+      <div className="relative bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden text-zinc-100">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-5 text-white">
+        <div className="bg-zinc-950 px-6 py-5 border-b border-zinc-800">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="p-2 bg-white/10 rounded-lg text-xl">🛡️</span>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-zinc-950 font-black shadow-glow-amber">
+                <ShieldCheck className="w-6 h-6 stroke-[2.5]" />
+              </div>
               <div>
-                <h3 className="text-lg font-bold">GSAP Escrow Milestone Guarantee</h3>
-                <p className="text-xs text-blue-100">Zero-risk milestone protection for client & student</p>
+                <h3 className="text-base sm:text-lg font-black tracking-tight text-white font-display">
+                  GSAP Escrow Milestone Guarantee
+                </h3>
+                <p className="text-xs text-zinc-400 font-mono">
+                  Zero-risk milestone protection for client & student
+                </p>
               </div>
             </div>
             {step === 'review' && (
               <button
                 onClick={onClose}
-                className="text-white/80 hover:text-white text-xl leading-none"
+                className="p-1 rounded-lg text-zinc-400 hover:text-white transition"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             )}
           </div>
@@ -76,115 +94,106 @@ export default function EscrowModal({
         {step === 'review' ? (
           <div className="p-6 space-y-5">
             {/* Candidate summary */}
-            <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex items-center justify-between">
+            <div className="bg-zinc-950/60 border border-zinc-800 rounded-2xl p-4 flex items-center justify-between">
               <div>
-                <span className="text-xs uppercase font-bold text-slate-600 tracking-wider">Hiring Candidate</span>
-                <h4 className="text-base font-semibold text-slate-800">{applicant.studentName}</h4>
-                <p className="text-xs text-slate-600">{job.title}</p>
-              </div>
-              <div className="text-right">
-                <span className="text-xs text-slate-600">Offered Rate</span>
-                <p className="text-sm font-bold text-blue-600">
-                  {formatCurrency(rate)}/hr
-                </p>
-              </div>
-            </div>
-
-            {/* Escrow protection details */}
-            <div className="rounded-xl bg-blue-50/70 border border-blue-100 p-4 text-xs text-blue-900 space-y-1.5">
-              <div className="font-semibold flex items-center text-blue-800">
-                <span className="mr-1.5">🔒</span> How GSAP Escrow Works:
-              </div>
-              <ul className="list-disc pl-5 space-y-1 text-blue-700">
-                <li>Your payment is deposited securely in GSAP Escrow right now.</li>
-                <li>The student gets instant notification to begin the work.</li>
-                <li>
-                  Funds are <strong>only released</strong> to the student after you verify and mark
-                  the task as completed.
-                </li>
-                <li>If the task is not fulfilled, funds are 100% refunded.</li>
-              </ul>
-            </div>
-
-            {/* Price breakdown */}
-            <div className="border border-slate-200 rounded-xl p-4 space-y-2 text-sm">
-              <div className="flex justify-between text-slate-600">
-                <span>Task Est. Hours</span>
-                <span className="font-medium text-slate-800">{hours} hrs</span>
-              </div>
-              <div className="flex justify-between text-slate-600">
-                <span>Milestone Base ({formatCurrency(rate)} × {hours}h)</span>
-                <span className="font-medium text-slate-800">{formatCurrency(subtotalUSD)}</span>
-              </div>
-              <div className="flex justify-between text-slate-600">
-                <span>GSAP Escrow & 18+ Verification Guarantee (5%)</span>
-                <span className="font-medium text-slate-800">{formatCurrency(platformFeeUSD)}</span>
-              </div>
-              <div className="pt-2 border-t border-slate-200 flex justify-between text-base font-bold text-slate-900">
-                <span>Total Escrow Deposit:</span>
-                <div className="text-right">
-                  <span className="text-blue-600">{formatCurrency(totalUSD)}</span>
-                  {currency !== 'USD' && (
-                    <span className="block text-xs font-normal text-slate-600">
-                      (Approx. ${totalUSD.toFixed(2)} USD base)
-                    </span>
-                  )}
+                <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider block">
+                  Hiring Student Candidate
+                </span>
+                <span className="font-bold text-sm text-white">{applicant.studentName}</span>
+                <div className="text-xs text-amber-400 font-mono mt-0.5">
+                  Proposed: {formatCurrency(rate)}/hr (~{hours} hrs estimated)
                 </div>
               </div>
+              <div className="text-right">
+                <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider block">
+                  Escrow Vault Total
+                </span>
+                <span className="text-xl font-black font-mono text-emerald-400">
+                  {formatCurrency(totalUSD)}
+                </span>
+              </div>
             </div>
 
-            {/* Payment Method Selector */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
-                Simulated Payment Method
+            {/* Financial breakdown */}
+            <div className="space-y-2.5 text-xs text-zinc-300 border border-zinc-800 bg-zinc-950/40 p-4 rounded-2xl">
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Task Scope ({hours} hrs @ {formatCurrency(rate)}/hr):</span>
+                <span className="font-mono font-medium text-white">{formatCurrency(subtotalUSD)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-400">5% Neutral Escrow Guarantee Fee:</span>
+                <span className="font-mono text-zinc-400">{formatCurrency(platformFeeUSD)}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-zinc-800 font-bold text-sm">
+                <span className="text-white">Total Locked In Escrow:</span>
+                <span className="font-mono text-emerald-400 font-black">{formatCurrency(totalUSD)}</span>
+              </div>
+            </div>
+
+            {/* Payment method selector */}
+            <div>
+              <label className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400 block mb-2">
+                Deposit Funding Source ({currency}):
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2 text-xs">
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('card')}
-                  className={`p-2.5 rounded-lg border text-xs font-semibold flex flex-col items-center justify-center space-y-1 transition-all ${
+                  className={`p-3 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1.5 ${
                     paymentMethod === 'card'
-                      ? 'border-blue-600 bg-blue-50/60 text-blue-700 ring-2 ring-blue-500/20'
-                      : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                      ? 'border-amber-500 bg-amber-500/10 text-amber-400 font-bold'
+                      : 'border-zinc-800 bg-zinc-950/60 text-zinc-400 hover:text-white'
                   }`}
                 >
-                  <span className="text-base">💳</span>
-                  <span>Credit Card</span>
+                  <CreditCard className="w-4 h-4" />
+                  <span>Card</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('bank')}
-                  className={`p-2.5 rounded-lg border text-xs font-semibold flex flex-col items-center justify-center space-y-1 transition-all ${
+                  className={`p-3 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1.5 ${
                     paymentMethod === 'bank'
-                      ? 'border-blue-600 bg-blue-50/60 text-blue-700 ring-2 ring-blue-500/20'
-                      : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                      ? 'border-amber-500 bg-amber-500/10 text-amber-400 font-bold'
+                      : 'border-zinc-800 bg-zinc-950/60 text-zinc-400 hover:text-white'
                   }`}
                 >
-                  <span className="text-base">🏦</span>
-                  <span>Wire / Bank</span>
+                  <Building className="w-4 h-4" />
+                  <span>Bank / Wire</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('upi')}
-                  className={`p-2.5 rounded-lg border text-xs font-semibold flex flex-col items-center justify-center space-y-1 transition-all ${
+                  className={`p-3 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1.5 ${
                     paymentMethod === 'upi'
-                      ? 'border-blue-600 bg-blue-50/60 text-blue-700 ring-2 ring-blue-500/20'
-                      : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                      ? 'border-amber-500 bg-amber-500/10 text-amber-400 font-bold'
+                      : 'border-zinc-800 bg-zinc-950/60 text-zinc-400 hover:text-white'
                   }`}
                 >
-                  <span className="text-base">📱</span>
-                  <span>UPI / Multi-pay</span>
+                  <Smartphone className="w-4 h-4" />
+                  <span>UPI / Local</span>
                 </button>
               </div>
             </div>
 
-            {/* Action buttons */}
-            <div className="pt-2 flex items-center space-x-3">
+            {/* Escrow terms reassurance */}
+            <div className="p-3 bg-zinc-950/60 border border-zinc-800 rounded-xl space-y-1.5 text-[11px] text-zinc-400">
+              <div className="flex items-center gap-1.5 text-zinc-300 font-medium">
+                <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span>How the Escrow Vault protects your deposit:</span>
+              </div>
+              <p className="leading-relaxed">
+                Funds are held in neutral custody. The student only receives payout after you inspect
+                and approve their completed task submission. You retain 100% dispute freeze protection.
+              </p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 onClick={onClose}
                 disabled={isProcessing}
-                className="w-1/3 py-2.5 px-4 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition"
+                className="px-4 py-2.5 rounded-xl border border-zinc-700 hover:bg-zinc-800 text-xs font-semibold text-zinc-300 transition"
               >
                 Cancel
               </button>
@@ -192,62 +201,55 @@ export default function EscrowModal({
                 type="button"
                 onClick={handleConfirmEscrow}
                 disabled={isProcessing}
-                className="w-2/3 py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold shadow-md shadow-blue-500/20 flex items-center justify-center space-x-2 transition disabled:opacity-60"
+                className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold transition shadow-glow-amber flex items-center gap-2"
               >
                 {isProcessing ? (
                   <>
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    <span>Securing Escrow...</span>
+                    <span className="w-4 h-4 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
+                    <span>Locking in Vault...</span>
                   </>
                 ) : (
-                  <span>Deposit {formatCurrency(totalUSD)} & Hire</span>
+                  <>
+                    <Lock className="w-4 h-4" />
+                    <span>Authorize & Fund Escrow ({formatCurrency(totalUSD)})</span>
+                  </>
                 )}
               </button>
             </div>
           </div>
         ) : (
-          /* Success step */
-          <div className="p-8 text-center space-y-4">
-            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
-              ✓
+          <div className="p-8 text-center space-y-5">
+            <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30">
+              <CheckCircle2 className="w-10 h-10" />
             </div>
             <div>
-              <h4 className="text-xl font-bold text-slate-900">Escrow Funded & Student Hired!</h4>
-              <p className="text-sm text-slate-600 mt-1 max-w-sm mx-auto">
-                <span className="font-semibold text-emerald-600">{formatCurrency(totalUSD)}</span> is
-                now safely held in GSAP Escrow. {applicant.studentName} has been notified and direct
-                messaging is activated.
+              <h4 className="text-xl font-black text-white font-display">Escrow Vault Funded!</h4>
+              <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto leading-relaxed">
+                <strong>{applicant.studentName}</strong> has been notified and officially hired for{' '}
+                <span className="text-white font-medium">&quot;{job.title}&quot;</span>.
               </p>
             </div>
-            <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 text-xs text-slate-600 text-left space-y-1">
-              <div className="font-semibold text-slate-800">Next Steps:</div>
-              <div>• Coordinate directly via the Job Messaging Tab.</div>
-              <div>• Review work once the student submits proof of completion.</div>
-              <div>• Click &quot;Release Escrow Payout&quot; to transfer funds to the student&apos;s wallet.</div>
+
+            <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-xs space-y-2 text-left font-mono">
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Vault Escrow Status:</span>
+                <span className="text-emerald-400 font-bold">LOCKED & HELD</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Amount Protected:</span>
+                <span className="text-white font-bold">{formatCurrency(totalUSD)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-zinc-500">Workspace Status:</span>
+                <span className="text-amber-400 font-bold">IN PROGRESS</span>
+              </div>
             </div>
+
             <button
               onClick={handleFinish}
-              className="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow transition"
+              className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow-glow-amber"
             >
-              Continue to Job Workspace
+              Go To Task Workspace
             </button>
           </div>
         )}

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { User } from '@/types';
 import { useAuth } from '@/context/AuthContext';
+import { ShieldCheck, GraduationCap, CheckCircle2, Lock, Sparkles, X, Award } from 'lucide-react';
 
 interface VerificationModalProps {
   user: User;
@@ -19,7 +20,7 @@ export default function VerificationModal({
 }: VerificationModalProps) {
   const { updateCurrentUserProfile } = useAuth();
   const [eduEmail, setEduEmail] = useState(user.email.endsWith('.edu') ? user.email : '');
-  const [universityName, setUniversityName] = useState(user.university || 'Stanford University');
+  const [universityName, setUniversityName] = useState(user.university || 'Imperial College London');
   const [docType, setDocType] = useState<'passport' | 'drivers_license' | 'national_id'>('passport');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifiedSuccess, setVerifiedSuccess] = useState(false);
@@ -45,7 +46,7 @@ export default function VerificationModal({
       setCertId(generatedCert);
       setIsVerifying(false);
       setVerifiedSuccess(true);
-    }, 1500);
+    }, 1200);
   };
 
   const handleFinish = () => {
@@ -54,24 +55,30 @@ export default function VerificationModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-zinc-950/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fade-in">
+      <div className="relative bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden text-zinc-100">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-5 text-white">
+        <div className="bg-zinc-950 px-6 py-5 border-b border-zinc-800">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="p-2 bg-white/10 rounded-lg text-xl">🎓</span>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+                <ShieldCheck className="w-6 h-6 stroke-[2.5]" />
+              </div>
               <div>
-                <h3 className="text-lg font-bold">18+ Student Identity Verification</h3>
-                <p className="text-xs text-emerald-100">Official Trust & Safety Credential Badge</p>
+                <h3 className="text-base sm:text-lg font-black tracking-tight text-white font-display">
+                  18+ Student Identity Verification
+                </h3>
+                <p className="text-xs text-zinc-400 font-mono">
+                  Official Trust & Safety Credential Badge
+                </p>
               </div>
             </div>
             {!verifiedSuccess && (
               <button
                 onClick={onClose}
-                className="text-white/80 hover:text-white text-xl leading-none"
+                className="p-1 rounded-lg text-zinc-400 hover:text-white transition"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             )}
           </div>
@@ -79,20 +86,19 @@ export default function VerificationModal({
 
         {!verifiedSuccess ? (
           <form onSubmit={handleVerify} className="p-6 space-y-4">
-            <div className="bg-emerald-50/70 border border-emerald-100 rounded-xl p-3.5 text-xs text-emerald-900 flex items-start space-x-2">
-              <span className="text-emerald-700 text-base">🛡️</span>
+            <div className="bg-zinc-950/70 border border-zinc-800 rounded-2xl p-3.5 text-xs text-zinc-300 flex items-start space-x-3">
+              <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-emerald-800">Verified Marketplace Guarantee</p>
-                <p className="text-emerald-700 mt-0.5">
-                  Clients prioritize 18+ verified students by over 400%. Verification grants you
-                  the Verified Badge, access to High-Value Concierge tasks, and instant escrow payouts.
+                <p className="font-bold text-amber-400 font-mono">Verified Student Guarantee</p>
+                <p className="text-zinc-400 text-[11px] mt-0.5 leading-relaxed">
+                  Verified students gain priority matching on high-value diaspora concierge tasks, instant escrow payouts, and a cryptographic credentials badge.
                 </p>
               </div>
             </div>
 
             {/* University Name */}
             <div>
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
+              <label className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400 block mb-1">
                 Accredited University / College
               </label>
               <input
@@ -100,14 +106,14 @@ export default function VerificationModal({
                 required
                 value={universityName}
                 onChange={(e) => setUniversityName(e.target.value)}
-                placeholder="e.g. Oxford University, IISc, UC Berkeley"
-                className="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
+                placeholder="e.g. Imperial College London, IISc Bangalore, Stanford"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-hidden"
               />
             </div>
 
             {/* Student .edu or Institutional Email */}
             <div>
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
+              <label className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400 block mb-1">
                 Institutional / University Email (.edu or campus domain)
               </label>
               <input
@@ -115,20 +121,20 @@ export default function VerificationModal({
                 required
                 value={eduEmail}
                 onChange={(e) => setEduEmail(e.target.value)}
-                placeholder="yourname@university.edu"
-                className="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none"
+                placeholder="yourname@university.ac.uk"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-hidden font-mono"
               />
             </div>
 
             {/* Government ID Type */}
             <div>
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1">
+              <label className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-400 block mb-1">
                 Government Photo ID (18+ Proof of Age)
               </label>
               <select
                 value={docType}
                 onChange={(e) => setDocType(e.target.value as any)}
-                className="w-full border border-slate-300 rounded-xl px-3.5 py-2 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none bg-white"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-hidden font-medium"
               >
                 <option value="passport">International Passport</option>
                 <option value="drivers_license">Driver&apos;s License / State ID</option>
@@ -137,21 +143,21 @@ export default function VerificationModal({
             </div>
 
             {/* Age Confirmation Pill */}
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between text-xs">
-              <span className="text-slate-600">Calculated Account Age:</span>
-              <span className="font-bold text-slate-800 bg-white px-2 py-0.5 rounded border border-slate-200">
+            <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 flex items-center justify-between text-xs">
+              <span className="text-zinc-400 font-mono">Calculated Account Age:</span>
+              <span className="font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-mono">
                 {user.age} Years Old (18+ Eligible ✓)
               </span>
             </div>
 
             {/* Simulated file upload area */}
-            <div className="border-2 border-dashed border-slate-200 hover:border-emerald-400 rounded-xl p-4 text-center cursor-pointer bg-slate-50/50 hover:bg-emerald-50/20 transition">
-              <span className="text-2xl block mb-1">📷</span>
-              <p className="text-xs font-semibold text-slate-700">
+            <div className="border border-dashed border-zinc-700 hover:border-amber-400 rounded-2xl p-4 text-center cursor-pointer bg-zinc-950/40 hover:bg-zinc-950/80 transition">
+              <span className="text-xl block mb-1">📷</span>
+              <p className="text-xs font-bold text-zinc-200">
                 Student ID & Photo ID Mock Uploaded
               </p>
-              <p className="text-[11px] text-slate-600">
-                Encrypted with 256-bit automated identity verification protocol
+              <p className="text-[11px] text-zinc-500 font-mono">
+                Encrypted with 256-bit automated OCR identity verification
               </p>
             </div>
 
@@ -160,81 +166,71 @@ export default function VerificationModal({
                 type="button"
                 onClick={onClose}
                 disabled={isVerifying}
-                className="w-1/3 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition"
+                className="w-1/3 py-2.5 rounded-xl border border-zinc-700 text-zinc-300 text-xs font-semibold hover:bg-zinc-800 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isVerifying}
-                className="w-2/3 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow-md shadow-emerald-500/20 flex items-center justify-center space-x-2 transition disabled:opacity-60"
+                className="w-2/3 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold shadow-glow-amber flex items-center justify-center space-x-2 transition disabled:opacity-60"
               >
                 {isVerifying ? (
                   <>
-                    <svg
-                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    <span>Validating 18+ Credentials...</span>
+                    <span className="w-4 h-4 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
+                    <span>Verifying Credentials...</span>
                   </>
                 ) : (
-                  <span>Submit for Instant Verification</span>
+                  <>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Confirm & Issue 18+ Certificate</span>
+                  </>
                 )}
               </button>
             </div>
           </form>
         ) : (
-          /* Verification Success screen */
-          <div className="p-8 text-center space-y-4">
-            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
-              ✓
+          <div className="p-8 text-center space-y-6">
+            <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30">
+              <CheckCircle2 className="w-10 h-10" />
             </div>
+
             <div>
-              <span className="inline-block bg-emerald-100 text-emerald-800 text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider mb-2">
-                18+ Verified Talent
-              </span>
-              <h4 className="text-xl font-bold text-slate-900">Verification Certificate Issued!</h4>
-              <p className="text-xs text-slate-600 mt-1 max-w-sm mx-auto">
-                Your student status and 18+ legal eligibility have been confirmed. Your verified badge
-                is now active across all platform proposals.
+              <h4 className="text-xl font-black text-white font-display">Identity Verified!</h4>
+              <p className="text-xs text-zinc-400 mt-1 max-w-sm mx-auto leading-relaxed">
+                Congratulations, <strong>{user.name}</strong>! Your 18+ verified credential badge is now active.
               </p>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs font-mono text-slate-700 space-y-1">
-              <div className="flex justify-between">
-                <span className="text-slate-600">Certificate ID:</span>
-                <span className="font-bold text-emerald-600">{certId}</span>
+            {/* Certificate badge card */}
+            <div className="bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 border border-amber-500/40 rounded-2xl p-5 text-left space-y-3 shadow-glow-amber">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-2">
+                <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider">
+                  GSAP ACCREDITATION SEAL
+                </span>
+                <span className="text-xs text-emerald-400 font-mono font-bold">18+ CONFIRMED</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-600">Institution:</span>
-                <span className="font-bold text-slate-800">{universityName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-600">Status:</span>
-                <span className="font-bold text-emerald-600">Legally Verified (18+)</span>
+              <div className="space-y-1 text-xs font-mono">
+                <div className="flex justify-between">
+                  <span className="text-zinc-500">Student Name:</span>
+                  <span className="text-white font-bold">{user.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-500">Institution:</span>
+                  <span className="text-zinc-300">{universityName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-zinc-500">Certificate ID:</span>
+                  <span className="text-amber-400 font-bold">{certId}</span>
+                </div>
               </div>
             </div>
 
             <button
               onClick={handleFinish}
-              className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow transition"
+              className="w-full py-3 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold rounded-xl text-xs transition shadow-glow-amber"
             >
-              Done & Return to Profile
+              Continue to Marketplace
             </button>
           </div>
         )}
